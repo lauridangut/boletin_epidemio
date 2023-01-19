@@ -7,6 +7,7 @@ Created on Mon Jan 16 15:21:04 2023
 """
 
 #Importación de librerías y paquetes
+# import numpy as np
 # import matplotlib as plt
 # pd.options.plotting.backend = "plotly"
 # import chart_estudio.plotly as py
@@ -41,7 +42,7 @@ st.header("Servicio de Microbiología - Hospital de Pediatría S.A.M.I.C. 'Prof.
 #Header
 st.title("Carga de datos y primeros análisis")
 
-# Obtener una lista de archivos csv seleccionados por el usuario, leer los archivos y concatenarlos
+# Obtener una lista de archivos csv seleccionados por el usuario, leer los archivos, concatenarlos y hacer limpieza de los datos
 
 import pandas as pd
 files = st.file_uploader(
@@ -72,14 +73,13 @@ if files:
          if contador == len(formatos_fecha):
              st.warning("Error en formato fecha. Cargar archivo CRUDO ", fecha)
 
-
     for i in range(0, len(dataset)):
         dataset.FECHA_REC.iloc[i] = asign_fecha(dataset.FECHA_REC.iloc[i])
 
     for i in range(0, len(dataset)):
         dataset.FECHA_NACIMIENTO.iloc[i] = asign_fecha(dataset.FECHA_NACIMIENTO.iloc[i])
         
-    # # Agregar columna de semana epidemiológica
+    # Agregar columna de semana epidemiológica
     from epiweeks import Week
     for i in range(0, len(dataset)):
         fecha = dataset["FECHA_REC"].iloc[i]
@@ -87,13 +87,12 @@ if files:
         del(fecha, i)
 
     # Agregar columna de edad en meses
-    import numpy as np
-    dataset["EDAD_MESES"] = round((dataset["FECHA_REC"] - dataset["FECHA_NACIMIENTO"]) / np.timedelta64(1, "M"), 1)
-    dataset.loc[dataset.EDAD_MESES<0,'EDAD_MESES']=0
+    from dateutil.relativedelta import relativedelta as rd
+    dataset["EDAD_MESES"] = dataset.apply(lambda x: rd(x["FECHA_REC"],x["FECHA_NACIMIENTO"]).years * 12 + rd(x["FECHA_REC"],x["FECHA_NACIMIENTO"]).months, axis=1)
 
     # Agregar columna de edad en años
-    dataset["EDAD_AÑOS"] = round((dataset["FECHA_REC"] - dataset["FECHA_NACIMIENTO"]) / np.timedelta64(1, "Y"), 1)
-    dataset.loc[dataset.EDAD_AÑOS<0,'EDAD_AÑOS']=0
+    dataset["EDAD_AÑOS"] = dataset.apply(lambda x: rd(x["FECHA_REC"], x["FECHA_NACIMIENTO"]).years, axis=1)
+    
 
     # Agregar columna categoría de edad (list comprehension):
         # 1 < 6 meses
@@ -112,67 +111,68 @@ if files:
                           else 7 if x <= 228
                           else "Adulto" 
                           for x in dataset["EDAD_MESES"]]
-
-    st.write(dataset)    
+    ## Filtrar por tipo de muestras (quedarse sólo con las muestras respiratorias)
+    muestras = ["ANF", "HISOPADO NASOFARINGEO", "LAVADO BRONCOALVEOLAR", "ASPIRADO TRAQUEAL", "BAL", "SECRECION RESPIRATORIA", "MICROBIOLOGIA", "HISOPADO FARINGEO", "Aspirado Traqueal"]
+    dataset = dataset[dataset["TIPO_MUESTRA"].isin(muestras)]
+    ## Homogeneizar mayúsculas y minúsculas
+    dataset['DET_RESULTADO_1'] = dataset['DET_RESULTADO_1'].str.upper()
+    ## Homogeneizar los resultados en una sola columna
+    dataset["RESULTADO"]=""
+    dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="1111") & (dataset["DET_RESULTADO_1"]=="DETECTABLE")] = "Adenovirus"
+    dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="2021") & (dataset["DET_RESULTADO_1"]=="DETECTABLE")] = "Enterovirus"
+    dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="ADVRES") & (dataset["DET_RESULTADO_1"]=="DETECTABLE")] = "Adenovirus"
+    dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="COVID_R") & (dataset["DET_RESULTADO_1"]=="DETECTABLE")] = "Pancoronavirus"
+    dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="FAC01") & (dataset["DET_RESULTADO_1"]=="DETECTABLE")] = "SARS-CoV-2"
+    dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="FAR02") & (dataset["DET_RESULTADO_1"]=="DETECTADO")] = "Coronavirus 299E"
+    dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="FAR03") & (dataset["DET_RESULTADO_1"]=="DETECTADO")] = "Coronavirus HKU1"
+    dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="FAR04") & (dataset["DET_RESULTADO_1"]=="DETECTADO")] = "Coronavirus NL63"
+    dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="FAR05") & (dataset["DET_RESULTADO_1"]=="DETECTADO")] = "Coronavirus OC43"
+    dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="FAR07") & (dataset["DET_RESULTADO_1"]=="DETECTADO")] = "Rhinovirus/Enterovirus"
+    dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="FAR13") & (dataset["DET_RESULTADO_1"]=="DETECTADO")] = "Parainfluenza 1"
+    dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="FAR14") & (dataset["DET_RESULTADO_1"]=="DETECTADO")] = "Parainfluenza 2"
+    dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="FAR15") & (dataset["DET_RESULTADO_1"]=="DETECTADO")] = "Parainfluenza 3"
+    dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="FAR16") & (dataset["DET_RESULTADO_1"]=="DETECTADO")] = "Parainfluenza 4"
+    dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="FAR17") & (dataset["DET_RESULTADO_1"]=="DETECTADO")] = "VSR"
+    dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="INFABT") & (dataset["DET_RESULTADO_1"]=="INFLUENZA A")] = "Influenza A"
+    dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="INFABT") & (dataset["DET_RESULTADO_1"]=="INFLUENZA B")] = "Influenza B"
+    dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="MYRVD") & (dataset["DET_RESULTADO_1"]=="RHINOVIRUS")] = "Rhinovirus"
+    dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="MYRVD") & (dataset["DET_RESULTADO_1"]=="METAPNEUMOVIRUS")] = "Metapneumovirus"
+    dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="MYRVD") & (dataset["DET_RESULTADO_1"]=="METAPNEUMOVIRUS Y RHINOVIRUS")] = "Metapneumovirus y Rhinovirus"
+    dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="PANFLUR") & (dataset["DET_RESULTADO_1"]=="DETECTABLE")] = "Panparainfluenza"
+    dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="PCR_C2") & (dataset["DET_RESULTADO_1"]=="DETECTADO")] = "SARS-CoV-2"
+    dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="VSR_RES") & (dataset["DET_RESULTADO_1"]=="DETECTABLE")] = "VSR"
+    dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="IFNABR") & (dataset["DET_RESULTADO_1"]=="DETECTABLE")] = "Detectable"
+    dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="MYRR") & (dataset["DET_RESULTADO_1"]=="DETECTABLE")] = "Detectable"
+    dataset["RESULTADO"].loc[(dataset["DET_RESULTADO_1"]=="NO DETECTABLE")] = "No detectable"
+    dataset["RESULTADO"].loc[(dataset["DET_RESULTADO_1"]=="NO DETECTADO")] = "No detectable"
+    ## Eliminar filas duplicadas (virus que tienen conflicto: metapneumo/rhino, flu)
+    dataset = dataset.drop(dataset[dataset["RESULTADO"]=="Detectable"].index)
+    ## Eliminar filas sin resultado
+    dataset = dataset[dataset.RESULTADO!=""]
+    ## Cambiar el código de estudio (DET_CODIGO_1) de los virus con conflicto
+    dataset["DET_CODIGO_1"].loc[(dataset["DET_CODIGO_1"] == "INFABT")] = "INFAYB"
+    dataset["DET_CODIGO_1"].loc[(dataset["DET_CODIGO_1"] == "IFNABR")] = "INFAYB"
+    dataset["DET_CODIGO_1"].loc[(dataset["DET_CODIGO_1"] == "MYRR")] = "MYR"
+    dataset["DET_CODIGO_1"].loc[(dataset["DET_CODIGO_1"] == "MYRVD")] = "MYR"
+    ## Ordenar por determinación para facilitar visualización
+    dataset = dataset.sort_values(["DET_CODIGO_1", "SEMANA_EPI"])
+    st.write(dataset)
+    dataset = dataset.to_csv(index=False)
+    # # Descargar el archivo
+    st.download_button("Descargar CSV procesado", dataset)
+    
+    ### Análisis de los datos
+    # Cantidad de determinaciones hechas
+    # cantidad_determinaciones = dataset["ESTUDIO"].count()
+    # st.write(cantidad_determinaciones)
+    #st.metric(label, value)
 else:
     st.warning("Seleccione al menos un archivo .csv")
  
 
-# # Filtrar por tipo de muestras (quedarse sólo con las muestras respiratorias)
-# muestras = ["ANF", "HISOPADO NASOFARINGEO", "LAVADO BRONCOALVEOLAR", "ASPIRADO TRAQUEAL", "BAL", "SECRECION RESPIRATORIA", "MICROBIOLOGIA", "HISOPADO FARINGEO", "Aspirado Traqueal"]
-# datos_resp = datos.loc[datos["TIPO_MUESTRA"].isin(muestras)]
-
-# # Ordenar por determinación para facilitar visualización
-# datos_resp = datos_resp.sort_values(["DET_CODIGO_1", "SEMANA_EPI"])
-
-# # Homogeneizar mayúsculas y minúsculas
-# datos_resp['DET_RESULTADO_1'] = datos_resp['DET_RESULTADO_1'].str.upper()
-
-# # Homogeneizar los resultados en una sola columna
-# datos_resp["RESULTADO"]=""
-# datos_resp["RESULTADO"].loc[(datos_resp["DET_CODIGO_1"]=="1111") & (datos_resp["DET_RESULTADO_1"]=="DETECTABLE")] = "Adenovirus"
-# datos_resp["RESULTADO"].loc[(datos_resp["DET_CODIGO_1"]=="2021") & (datos_resp["DET_RESULTADO_1"]=="DETECTABLE")] = "Enterovirus"
-# datos_resp["RESULTADO"].loc[(datos_resp["DET_CODIGO_1"]=="ADVRES") & (datos_resp["DET_RESULTADO_1"]=="DETECTABLE")] = "Adenovirus"
-# datos_resp["RESULTADO"].loc[(datos_resp["DET_CODIGO_1"]=="COVID_R") & (datos_resp["DET_RESULTADO_1"]=="DETECTABLE")] = "Pancoronavirus"
-# datos_resp["RESULTADO"].loc[(datos_resp["DET_CODIGO_1"]=="FAC01") & (datos_resp["DET_RESULTADO_1"]=="DETECTABLE")] = "SARS-CoV-2"
-# datos_resp["RESULTADO"].loc[(datos_resp["DET_CODIGO_1"]=="FAR02") & (datos_resp["DET_RESULTADO_1"]=="DETECTADO")] = "Coronavirus 299E"
-# datos_resp["RESULTADO"].loc[(datos_resp["DET_CODIGO_1"]=="FAR03") & (datos_resp["DET_RESULTADO_1"]=="DETECTADO")] = "Coronavirus HKU1"
-# datos_resp["RESULTADO"].loc[(datos_resp["DET_CODIGO_1"]=="FAR04") & (datos_resp["DET_RESULTADO_1"]=="DETECTADO")] = "Coronavirus NL63"
-# datos_resp["RESULTADO"].loc[(datos_resp["DET_CODIGO_1"]=="FAR05") & (datos_resp["DET_RESULTADO_1"]=="DETECTADO")] = "Coronavirus OC43"
-# datos_resp["RESULTADO"].loc[(datos_resp["DET_CODIGO_1"]=="FAR07") & (datos_resp["DET_RESULTADO_1"]=="DETECTADO")] = "Rhinovirus/Enterovirus"
-# datos_resp["RESULTADO"].loc[(datos_resp["DET_CODIGO_1"]=="FAR13") & (datos_resp["DET_RESULTADO_1"]=="DETECTADO")] = "Parainfluenza 1"
-# datos_resp["RESULTADO"].loc[(datos_resp["DET_CODIGO_1"]=="FAR14") & (datos_resp["DET_RESULTADO_1"]=="DETECTADO")] = "Parainfluenza 2"
-# datos_resp["RESULTADO"].loc[(datos_resp["DET_CODIGO_1"]=="FAR15") & (datos_resp["DET_RESULTADO_1"]=="DETECTADO")] = "Parainfluenza 3"
-# datos_resp["RESULTADO"].loc[(datos_resp["DET_CODIGO_1"]=="FAR16") & (datos_resp["DET_RESULTADO_1"]=="DETECTADO")] = "Parainfluenza 4"
-# datos_resp["RESULTADO"].loc[(datos_resp["DET_CODIGO_1"]=="FAR17") & (datos_resp["DET_RESULTADO_1"]=="DETECTADO")] = "VSR"
-# datos_resp["RESULTADO"].loc[(datos_resp["DET_CODIGO_1"]=="INFABT") & (datos_resp["DET_RESULTADO_1"]=="INFLUENZA A")] = "Influenza A"
-# datos_resp["RESULTADO"].loc[(datos_resp["DET_CODIGO_1"]=="INFABT") & (datos_resp["DET_RESULTADO_1"]=="INFLUENZA B")] = "Influenza B"
-# datos_resp["RESULTADO"].loc[(datos_resp["DET_CODIGO_1"]=="MYRVD") & (datos_resp["DET_RESULTADO_1"]=="RHINOVIRUS")] = "Rhinovirus"
-# datos_resp["RESULTADO"].loc[(datos_resp["DET_CODIGO_1"]=="MYRVD") & (datos_resp["DET_RESULTADO_1"]=="METAPNEUMOVIRUS")] = "Metapneumovirus"
-# datos_resp["RESULTADO"].loc[(datos_resp["DET_CODIGO_1"]=="MYRVD") & (datos_resp["DET_RESULTADO_1"]=="METAPNEUMOVIRUS Y RHINOVIRUS")] = "Metapneumovirus y Rhinovirus"
-# datos_resp["RESULTADO"].loc[(datos_resp["DET_CODIGO_1"]=="PANFLUR") & (datos_resp["DET_RESULTADO_1"]=="DETECTABLE")] = "Panparainfluenza"
-# datos_resp["RESULTADO"].loc[(datos_resp["DET_CODIGO_1"]=="PCR_C2") & (datos_resp["DET_RESULTADO_1"]=="DETECTADO")] = "SARS-CoV-2"
-# datos_resp["RESULTADO"].loc[(datos_resp["DET_CODIGO_1"]=="VSR_RES") & (datos_resp["DET_RESULTADO_1"]=="DETECTABLE")] = "VSR"
-# datos_resp["RESULTADO"].loc[(datos_resp["DET_CODIGO_1"]=="IFNABR") & (datos_resp["DET_RESULTADO_1"]=="DETECTABLE")] = "Detectable"
-# datos_resp["RESULTADO"].loc[(datos_resp["DET_CODIGO_1"]=="MYRR") & (datos_resp["DET_RESULTADO_1"]=="DETECTABLE")] = "Detectable"
-# datos_resp["RESULTADO"].loc[(datos_resp["DET_RESULTADO_1"]=="NO DETECTABLE")] = "No detectable"
-# datos_resp["RESULTADO"].loc[(datos_resp["DET_RESULTADO_1"]=="NO DETECTADO")] = "No detectable"
-
-# # Eliminar filas duplicadas (virus que tienen conflicto: metapneumo/rhino, flu)
-# datos_resp_drop = datos_resp.drop(datos_resp[datos_resp["RESULTADO"]=="Detectable"].index)
-
-# # Eliminar filas sin resultado
-# datos_resp_drop = datos_resp_drop[datos_resp_drop.RESULTADO!=""]
-
-# # Cambiar el código de estudio (DET_CODIGO_1) de los virus con conflicto
-# datos_resp_drop["DET_CODIGO_1"].loc[(datos_resp_drop["DET_CODIGO_1"] == "INFABT")] = "INFAYB"
-# datos_resp_drop["DET_CODIGO_1"].loc[(datos_resp_drop["DET_CODIGO_1"] == "IFNABR")] = "INFAYB"
-# datos_resp_drop["DET_CODIGO_1"].loc[(datos_resp_drop["DET_CODIGO_1"] == "MYRR")] = "MYR"
-# datos_resp_drop["DET_CODIGO_1"].loc[(datos_resp_drop["DET_CODIGO_1"] == "MYRVD")] = "MYR"
-
-# ### Análisis de los datos
+# 
 # ## Número y características de pacientes estudiados 
-# pacientes_estudiados = datos_resp_drop.groupby(["PAC_ID", "CAT_EDAD", "SEXO"]).size().to_frame()
+# pacientes_estudiados = dataset.groupby(["PAC_ID", "CAT_EDAD", "SEXO"]).size().to_frame()
 # pacientes_estudiados.rename(columns={0:"CANT_DET"}, inplace=True)
 # pacientes_estudiados.reset_index(inplace=True)
 # print(len(pacientes_estudiados))
@@ -190,7 +190,7 @@ else:
 
 # # Dataframe SOLO PEDIATRICOS
 # pediatricos = [1, 2, 3, 4, 5, 6, 7]
-# solo_ped = datos_resp_drop[datos_resp_drop["CAT_EDAD"].isin(pediatricos)]
+# solo_ped = dataset[dataset["CAT_EDAD"].isin(pediatricos)]
 # ## Número y características de pacientes estudiados 
 # pacientes_ped_estudiados = solo_ped.groupby(["PAC_ID", "CAT_EDAD", "SEXO"]).size().to_frame()
 # pacientes_ped_estudiados.rename(columns={0:"CANT_DET"}, inplace=True)
@@ -207,7 +207,7 @@ else:
 #     pac_ped_edad["PORCENTAJE"].iloc[i] = porcentaje
 
 # # Dataframe SOLO ADULTOS
-# solo_adultos = datos_resp_drop[datos_resp_drop["CAT_EDAD"] == "Adulto"]
+# solo_adultos = dataset[dataset["CAT_EDAD"] == "Adulto"]
 # adultos_estudiados = solo_adultos.groupby(["PAC_ID", "CAT_EDAD", "SEXO"]).size().to_frame()
 # adultos_estudiados.rename(columns={0:"CANT_DET"}, inplace=True)
 # adultos_estudiados.reset_index(inplace=True)
@@ -270,13 +270,13 @@ else:
 # fig.show()
 
 # # Mediana de edad y rango, moda (categoría de edad). General
-# mediana = datos_resp_drop["EDAD_AÑOS"].median()
+# mediana = dataset["EDAD_AÑOS"].median()
 # print(mediana)
-# moda = datos_resp_drop["CAT_EDAD"].mode()
+# moda = dataset["CAT_EDAD"].mode()
 # print(moda)
-# maximo = datos_resp_drop["EDAD_AÑOS"].max()  
+# maximo = dataset["EDAD_AÑOS"].max()  
 # print(maximo)
-# minimo = datos_resp_drop["EDAD_AÑOS"].min()
+# minimo = dataset["EDAD_AÑOS"].min()
 # print(minimo)
 
 # # Mediana de edad y rango, moda (categoría de edad). Pediatricos
@@ -290,7 +290,7 @@ else:
 # print(minimo)
 
 # ## Número de muestras procesadas
-# muestras_proc = datos_resp_drop.groupby(["NUMERO"]).size().to_frame()
+# muestras_proc = dataset.groupby(["NUMERO"]).size().to_frame()
 # muestras_proc.rename(columns={0:"CANT_DET"}, inplace=True)
 # print(len(muestras_proc))
 # cant_det = muestras_proc["CANT_DET"].sum()
