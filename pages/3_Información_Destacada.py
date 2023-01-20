@@ -157,15 +157,41 @@ if files:
     ## Ordenar por determinación para facilitar visualización
     dataset = dataset.sort_values(["DET_CODIGO_1", "SEMANA_EPI"])
     st.write(dataset)
-    dataset = dataset.to_csv(index=False)
     # # Descargar el archivo
-    st.download_button("Descargar CSV procesado", dataset)
+    @st.cache
+    def convert_df(df):
+        # IMPORTANT: Cache the conversion to prevent computation on every rerun
+        return df.to_csv().encode('utf-8')
+    dataframe=dataset.copy()
+    dataset = convert_df(dataset)
     
+    st.download_button(
+        label="Descargar archivo procesado",
+        data=dataset,
+        file_name='archivo_procesado.csv',
+        mime='text/csv',
+    )
     ### Análisis de los datos
     # Cantidad de determinaciones hechas
-    # cantidad_determinaciones = dataset["ESTUDIO"].count()
-    # st.write(cantidad_determinaciones)
-    #st.metric(label, value)
+    cantidad_determinaciones = len(dataframe)
+    # Cantidad de pacientes estudiados
+    cant_pac_estudiados = dataframe["PAC_ID"].nunique()
+    # Cantidad de determinaciones positivas
+    cantidad_positivos = len(dataframe[dataframe["RESULTADO"] != "No detectable"])
+    # Porcentaje de determinaciones positivas
+    porcentaje_pos = round((cantidad_positivos*100)/cantidad_determinaciones,1)
+    # Widget métricas
+    col1, col2 = st.columns(2)
+    col1.metric(label="Cantidad de determinaciones realizadas", value=cantidad_determinaciones)
+    col2.metric(label="Cantidad de pacientes estudiados", value=cant_pac_estudiados)
+    col3, col4 = st.columns(2)
+    col3.metric(label="Cantidad de determinaciones positivas", value=cantidad_positivos)
+    col4.metric(label="Porcentaje de positividad total (%)", value=porcentaje_pos)
+
+# col1, col2, col3 = st.columns(3)
+# col1.metric("Temperature", "70 °F", "1.2 °F")
+# col2.metric("Wind", "9 mph", "-8%")
+# col3.metric("Humidity", "86%", "4%")
 else:
     st.warning("Seleccione al menos un archivo .csv")
  
