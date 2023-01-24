@@ -181,27 +181,101 @@ if files:
     # Porcentaje de determinaciones positivas
     porcentaje_pos = round((cantidad_positivos*100)/cantidad_determinaciones,1)
     # Widget métricas
+    from streamlit_extras.metric_cards import style_metric_cards
     col1, col2 = st.columns(2)
     col1.metric(label="Cantidad de determinaciones realizadas", value=cantidad_determinaciones)
     col2.metric(label="Cantidad de pacientes estudiados", value=cant_pac_estudiados)
     col3, col4 = st.columns(2)
     col3.metric(label="Cantidad de determinaciones positivas", value=cantidad_positivos)
     col4.metric(label="Porcentaje de positividad total (%)", value=porcentaje_pos)
+    style_metric_cards(border_left_color="#B86EE6")
+    # Número y características de pacientes estudiados 
+    pacientes_estudiados = dataframe.groupby(["PAC_ID", "CAT_EDAD", "SEXO"]).size().to_frame()
+    pacientes_estudiados.rename(columns={0:"CANT_DET"}, inplace=True)
+    pacientes_estudiados.reset_index(inplace=True)
+    # Número de pacientes estudiados por categoría de edad
+    pac_est_edad = pacientes_estudiados.groupby(["CAT_EDAD"]).agg("count")
+    pac_est_edad.rename(columns={"CANT_DET": "CANT_EDAD"}, inplace=True)
+    pac_est_edad["PORCENTAJE"] = 0
+    pac_est_edad["CANT_EDAD"].sum()
+    # Porcentaje de pacientes estudiados por categoría de edad
+    for i in range(0, len(pac_est_edad)):
+        porcentaje = (pac_est_edad["CANT_EDAD"].iloc[i]*100)/len(pacientes_estudiados) 
+        pac_est_edad["PORCENTAJE"].iloc[i] = round(porcentaje)
+    # Número de pacientes estudiados por sexo
+    pac_est_sexo = pacientes_estudiados.groupby(["SEXO"]).agg("count")
+    pac_est_sexo.rename(columns={"CANT_DET": "CANT_SEXO"}, inplace=True)
+    pac_est_sexo["PORCENTAJE"] = 0
+    # Porcentaje de pacientes estudiados por sexo
+    for i in range(len(pac_est_sexo)):
+        porcentaje = round(pac_est_sexo["CANT_SEXO"].iloc[i]*100/len(pacientes_estudiados), 2)   
+        pac_est_sexo["PORCENTAJE"].iloc[i] = porcentaje
+    # Número de pacientes estudiados por sexo y categoría de edad
+    pac_est_sexo_edad = pacientes_estudiados.groupby(["SEXO", "CAT_EDAD"]).agg("count")
+    pac_est_sexo_edad.rename(columns={"CANT_DET": "CANT"}, inplace=True)   
+    pac_est_sexo_edad.reset_index(inplace=True)
+    pac_est_sexo_edad = pac_est_sexo_edad.pivot(index="CAT_EDAD", columns="SEXO", values="CANT")
+    pac_est_sexo_edad.reset_index(inplace=True)
+    edad_dict = {"1": "< 6 meses", "2": "6 a 12 meses", "3": "13 a 23 meses", "4": "2 a 4 años",
+                 "5": "5 a 9 años", "6": "10 a 14 años", "7": "15 a 19 años", "8": "Adulto"}
+    pac_est_sexo_edad["EDAD"] = pac_est_sexo_edad["CAT_EDAD"].replace(edad_dict)
 
-# col1, col2, col3 = st.columns(3)
-# col1.metric("Temperature", "70 °F", "1.2 °F")
-# col2.metric("Wind", "9 mph", "-8%")
-# col3.metric("Humidity", "86%", "4%")
+    # Gráfico población estudiada (sexo y edad)
+    import plotly.graph_objects as go
+    y_edad = pac_est_sexo_edad["EDAD"]
+    x_M = pac_est_sexo_edad["M"]
+    x_F = pac_est_sexo_edad["F"] * -1
+    fig = go.Figure()
+    fig.add_trace(go.Bar(y= y_edad, x = x_M, 
+                          name = "Varones", 
+                          orientation = "h"))
+    fig.add_trace(go.Bar(y = y_edad, x = x_F,
+                          name = "Mujeres", 
+                          orientation = "h"))
+    fig.update_layout(title = "POBLACIÓN ESTUDIADA POR CATEGORÍA DE EDAD",
+                      title_font_size = 20, barmode = 'relative',
+                      bargap = 0.0, bargroupgap = 0,
+                      xaxis = dict(tickvals = [-3000, -2000, -1000, -500,
+                                              0, 500, 1000, 2000, 3000],
+                                    
+                                  ticktext = ["3000", "2000", "1000", "500", 
+                                              "0", "500", "1000", "2000", "3000"],
+                                  title = "Total estudiados",
+                                  title_font_size = 20),
+                      yaxis = dict(title= "Edad",
+                                  title_font_size = 20),
+                      font=dict(size=20,
+                                  )
+                      )
+    fig.update_yaxes(type='category')
+    fig.write_image("poblacion_acum.png", scale=2)
+    st.plotly_chart(fig)
+
 else:
     st.warning("Seleccione al menos un archivo .csv")
  
 
-# 
+# # Tabla categorías de edad
+# cat_edad = {
+#          "Categoría de Edad": ["1", "2", "3", "4", "5", "6", "7", "Adulto"],
+#          "Edad": ["< 6 meses", "6 a 12 meses", "13 a 23 meses", "2 a 4 años", "5 a 9 años", "10 a 14 años", "15 a 19 años", "> 19 años"]
+#           }
+# cat_edad = pd.DataFrame(cat_edad)
+
+# fig =  ff.create_table(cat_edad)
+# fig.update_layout(
+#     autosize=False,
+#     width=500,
+#     height=200,
+# )
+# fig.write_image("table_plotly.png", scale=2)
+# fig.show()
+
 # ## Número y características de pacientes estudiados 
-# pacientes_estudiados = dataset.groupby(["PAC_ID", "CAT_EDAD", "SEXO"]).size().to_frame()
-# pacientes_estudiados.rename(columns={0:"CANT_DET"}, inplace=True)
-# pacientes_estudiados.reset_index(inplace=True)
-# print(len(pacientes_estudiados))
+    # pacientes_estudiados = dataframe.groupby(["PAC_ID", "CAT_EDAD", "SEXO"]).size().to_frame()
+    # pacientes_estudiados.rename(columns={0:"CANT_DET"}, inplace=True)
+    # pacientes_estudiados.reset_index(inplace=True)
+    # st.write(len(pacientes_estudiados))
 
 # # Número de pacientes estudiados por categoría de edad
 # pac_est_edad = pacientes_estudiados.groupby(["CAT_EDAD"]).agg("count")
@@ -214,30 +288,7 @@ else:
 #     porcentaje = round(pac_est_edad["CANT_EDAD"].iloc[i]*100/len(pacientes_estudiados), 1) 
 #     pac_est_edad["PORCENTAJE"].iloc[i] = porcentaje
 
-# # Dataframe SOLO PEDIATRICOS
-# pediatricos = [1, 2, 3, 4, 5, 6, 7]
-# solo_ped = dataset[dataset["CAT_EDAD"].isin(pediatricos)]
-# ## Número y características de pacientes estudiados 
-# pacientes_ped_estudiados = solo_ped.groupby(["PAC_ID", "CAT_EDAD", "SEXO"]).size().to_frame()
-# pacientes_ped_estudiados.rename(columns={0:"CANT_DET"}, inplace=True)
-# pacientes_ped_estudiados.reset_index(inplace=True)
-# print(len(pacientes_ped_estudiados))
-# # Número de pacientes pediatricos estudiados por categoría de edad
-# pac_ped_edad = pacientes_ped_estudiados.groupby(["CAT_EDAD"]).agg("count")
-# pac_ped_edad.rename(columns={"CANT_DET": "CANT_EDAD"}, inplace=True)
-# pac_ped_edad["PORCENTAJE"] = 0
-# print(pac_ped_edad["CANT_EDAD"].sum())
-# # Porcentaje de pacientes pediatricos estudiados por categoría de edad
-# for i in range(0, len(pac_ped_edad)):
-#     porcentaje = round(pac_ped_edad["CANT_EDAD"].iloc[i]*100/len(pacientes_ped_estudiados), 1) 
-#     pac_ped_edad["PORCENTAJE"].iloc[i] = porcentaje
 
-# # Dataframe SOLO ADULTOS
-# solo_adultos = dataset[dataset["CAT_EDAD"] == "Adulto"]
-# adultos_estudiados = solo_adultos.groupby(["PAC_ID", "CAT_EDAD", "SEXO"]).size().to_frame()
-# adultos_estudiados.rename(columns={0:"CANT_DET"}, inplace=True)
-# adultos_estudiados.reset_index(inplace=True)
-# print(len(adultos_estudiados))
     
 # # Número de pacientes estudiados por sexo
 # pac_est_sexo = pacientes_estudiados.groupby(["SEXO"]).agg("count")
@@ -294,6 +345,31 @@ else:
 # fig.update_yaxes(type='category')
 # fig.write_image("poblacion_acum.png", scale=2)
 # fig.show()
+
+# # Dataframe SOLO PEDIATRICOS
+# pediatricos = [1, 2, 3, 4, 5, 6, 7]
+# solo_ped = dataset[dataset["CAT_EDAD"].isin(pediatricos)]
+# ## Número y características de pacientes estudiados 
+# pacientes_ped_estudiados = solo_ped.groupby(["PAC_ID", "CAT_EDAD", "SEXO"]).size().to_frame()
+# pacientes_ped_estudiados.rename(columns={0:"CANT_DET"}, inplace=True)
+# pacientes_ped_estudiados.reset_index(inplace=True)
+# print(len(pacientes_ped_estudiados))
+# # Número de pacientes pediatricos estudiados por categoría de edad
+# pac_ped_edad = pacientes_ped_estudiados.groupby(["CAT_EDAD"]).agg("count")
+# pac_ped_edad.rename(columns={"CANT_DET": "CANT_EDAD"}, inplace=True)
+# pac_ped_edad["PORCENTAJE"] = 0
+# print(pac_ped_edad["CANT_EDAD"].sum())
+# # Porcentaje de pacientes pediatricos estudiados por categoría de edad
+# for i in range(0, len(pac_ped_edad)):
+#     porcentaje = round(pac_ped_edad["CANT_EDAD"].iloc[i]*100/len(pacientes_ped_estudiados), 1) 
+#     pac_ped_edad["PORCENTAJE"].iloc[i] = porcentaje
+
+# # Dataframe SOLO ADULTOS
+# solo_adultos = dataset[dataset["CAT_EDAD"] == "Adulto"]
+# adultos_estudiados = solo_adultos.groupby(["PAC_ID", "CAT_EDAD", "SEXO"]).size().to_frame()
+# adultos_estudiados.rename(columns={0:"CANT_DET"}, inplace=True)
+# adultos_estudiados.reset_index(inplace=True)
+# print(len(adultos_estudiados))
 
 # # Mediana de edad y rango, moda (categoría de edad). General
 # mediana = dataset["EDAD_AÑOS"].median()
