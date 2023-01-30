@@ -251,6 +251,75 @@ if files:
     fig.write_image("poblacion_acum.png", scale=2)
     st.plotly_chart(fig)
 
+    # Dataframe SOLO PEDIATRICOS
+    excluir_adultos = ["Adulto"]
+    solo_ped = dataframe[~dataframe["CAT_EDAD"].isin(excluir_adultos)]
+    # st.write(solo_ped)
+    ## Número y características de pacientes estudiados 
+    pacientes_ped_estudiados = solo_ped.groupby(["PAC_ID", "CAT_EDAD", "SEXO"]).size().to_frame()
+    pacientes_ped_estudiados.rename(columns={0:"CANT_DET"}, inplace=True)
+    pacientes_ped_estudiados.reset_index(inplace=True)
+    # st.write(pacientes_ped_estudiados)
+    # Número de pacientes pediatricos estudiados por categoría de edad
+    pac_ped_edad = pacientes_ped_estudiados.groupby(["CAT_EDAD"]).agg("count")
+    pac_ped_edad.rename(columns={"CANT_DET": "CANT_EDAD"}, inplace=True)
+    pac_ped_edad["PORCENTAJE"] = 0
+    # Porcentaje de pacientes pediatricos estudiados por categoría de edad
+    for i in range(0, len(pac_ped_edad)):
+        porcentaje = round(pac_ped_edad["CANT_EDAD"].iloc[i]*100/len(pacientes_ped_estudiados), 1) 
+        pac_ped_edad["PORCENTAJE"].iloc[i] = porcentaje
+    # # Mediana de edad y rango, moda (categoría de edad). Pediatricos
+    mediana = solo_ped["EDAD_AÑOS"].median()
+    moda = solo_ped["EDAD_AÑOS"].mode()
+    maximo = solo_ped["EDAD_AÑOS"].max()  
+    minimo = solo_ped["EDAD_AÑOS"].min()
+    st.subheader("Mediana de Edad en años de Pacientes Pediátricos estudiados:", anchor=None)
+    st.write(mediana)
+    st.subheader("Moda de Edad en años de Pacientes Pediátricos estudiados:", anchor=None)
+    st.write(moda[0])
+    st.subheader("Rango de Edad en años de Pacientes Pediátricos estudiados (min):", anchor=None)
+    st.write(minimo)
+    st.subheader("Rango de Edad en años de Pacientes Pediátricos estudiados (máx):", anchor=None)
+    st.write(maximo)
+    # Cantidad de determinaciones realizadas por estudio
+    determinaciones_por_estudio = dataframe.groupby(["DET_CODIGO_1"]).size().to_frame()
+    determinaciones_por_estudio.rename(columns={0: "DETERMINACIONES REALIZADAS"}, inplace=True)
+    determinaciones_por_estudio.reset_index(inplace=True)
+    determinaciones_por_estudio.rename(columns={"DET_CODIGO_1": "VIRUS (MÉTODO)"}, inplace=True)
+    determinaciones_por_estudio["VIRUS (MÉTODO)"] = determinaciones_por_estudio["VIRUS (MÉTODO)"].replace({"1111":"Adenovirus (PCR)", "2021":"Enterovirus (PCR)",
+                    "ADVRES":"Adenovirus (Determinación y/o carga)",
+                    "COVID_R":"Pancoronavirus (PCR)",
+                    "FAC01":"SARS-CoV-2 (PCR)",
+                    "FAR02":"Coronavirus 299E (Filmarray)",
+                    "FAR03":"Coronavirus HKU1 (Filmarray)",
+                    "FAR04":"Coronavirus NL63 (Filmarray)",
+                    "FAR05":"Coronavirus OC43 (Filmarray)",
+                    "FAR07":"Rhinovirus/Enterovirus (Filmarray)",
+                    "FAR13":"Parainfluenza 1 (Filmarray)",
+                    "FAR14":"Parainfluenza 2 (Filmarray)",
+                    "FAR15":"Parainfluenza 3 (Filmarray)",
+                    "FAR16":"Parainfluenza 4 (Filmarray)",
+                    "FAR17":"Virus Respiratorio Sincicial (Filmarray)",
+                    "INFAYB":"Virus Influenza A y B (PCR)",
+                    "MYR":"Metapneumovirus y Rhinovirus (PCR)",
+                    "PANFLUR":"Panparainfluenza (PCR)",
+                    "PCR_C2":"SARS-CoV-2 (Filmarray)",
+                    "VSR_RES":"Virus Respiratorio Sincicial (PCR)"})
+
+    st.write(determinaciones_por_estudio)    
+
+    # # Tabla cantidad de determinaciones por estudio
+    # fig =  ff.create_table(determinaciones_por_estudio)
+    # fig.update_layout(
+    #     autosize=False,
+    #     width=800,
+    #     height=600,
+    # )
+    # fig.write_image("muestras_proc_est_acum.png", scale=2)
+    # fig.show()
+
+    # print(determinaciones_por_estudio["DETERMINACIONES REALIZADAS"].sum())
+
 else:
     st.warning("Seleccione al menos un archivo .csv")
  
@@ -271,129 +340,44 @@ else:
 # fig.write_image("table_plotly.png", scale=2)
 # fig.show()
 
-# ## Número y características de pacientes estudiados 
-    # pacientes_estudiados = dataframe.groupby(["PAC_ID", "CAT_EDAD", "SEXO"]).size().to_frame()
-    # pacientes_estudiados.rename(columns={0:"CANT_DET"}, inplace=True)
-    # pacientes_estudiados.reset_index(inplace=True)
-    # st.write(len(pacientes_estudiados))
+# # Número de determinaciones positivas (filtrar columna DET_RESULTADO_1 y quedarme con todo lo que no sea No detectado o No detectable)
+# det_positivas = datos_resp_drop[(datos_resp_drop["RESULTADO"] == "Adenovirus") |
+#                                (datos_resp_drop["RESULTADO"] == "Enterovirus") |
+#                                (datos_resp_drop["RESULTADO"] == "Pancoronavirus") |
+#                                (datos_resp_drop["RESULTADO"] == "SARS-CoV-2") |
+#                                (datos_resp_drop["RESULTADO"] == "Coronavirus 299E") |
+#                                (datos_resp_drop["RESULTADO"] == "Coronavirus HKU1") |
+#                                (datos_resp_drop["RESULTADO"] == "Coronavirus NL63") |
+#                                (datos_resp_drop["RESULTADO"] == "Coronavirus OC43") |
+#                                (datos_resp_drop["RESULTADO"] == "Rhinovirus/Enterovirus") |
+#                                (datos_resp_drop["RESULTADO"] == "Parainfluenza 1") |
+#                                (datos_resp_drop["RESULTADO"] == "Parainfluenza 2") |
+#                                (datos_resp_drop["RESULTADO"] == "Parainfluenza 3") |
+#                                (datos_resp_drop["RESULTADO"] == "Parainfluenza 4") |
+#                                (datos_resp_drop["RESULTADO"] == "VSR") |
+#                                (datos_resp_drop["RESULTADO"] == "Influenza A") |
+#                                (datos_resp_drop["RESULTADO"] == "Influenza B") |
+#                                (datos_resp_drop["RESULTADO"] == "Rhinovirus") |
+#                                (datos_resp_drop["RESULTADO"] == "Metapneumovirus") |
+#                                (datos_resp_drop["RESULTADO"] == "Panparainfluenza") |
+#                                (datos_resp_drop["RESULTADO"] == "Metapneumovirus y Rhinovirus")]
+# print(len(det_positivas))
+# det_positivas.to_csv("det_positivas_14-15-16-17-18.csv")
+# # Porcentaje positivas
+# print(round(len(det_positivas)*100/len(datos_resp_drop), 2))
 
-# # Número de pacientes estudiados por categoría de edad
-# pac_est_edad = pacientes_estudiados.groupby(["CAT_EDAD"]).agg("count")
-# pac_est_edad.rename(columns={"CANT_DET": "CANT_EDAD"}, inplace=True)
-# pac_est_edad["PORCENTAJE"] = 0
-# print(pac_est_edad["CANT_EDAD"].sum())
+# # Número de determinaciones negativas
+# det_negativas = datos_resp_drop[(datos_resp_drop["RESULTADO"] == "No detectable")]
+# print(len(det_negativas))
+# # Porcentaje negativas
+# print(round(len(det_negativas)*100/len(datos_resp_drop), 2))
 
-# # Porcentaje de pacientes estudiados por categoría de edad
-# for i in range(0, len(pac_est_edad)):
-#     porcentaje = round(pac_est_edad["CANT_EDAD"].iloc[i]*100/len(pacientes_estudiados), 1) 
-#     pac_est_edad["PORCENTAJE"].iloc[i] = porcentaje
+# # Filtrar pacientes estudiados que son positivos (ojo! coinfectados cuentan doble)
+# pac_positivos = det_positivas.sort_values(["PAC_ID"])
+# pac_positivos.to_csv("pac_positivos_acum(6-18).csv")
 
-
-    
-# # Número de pacientes estudiados por sexo
-# pac_est_sexo = pacientes_estudiados.groupby(["SEXO"]).agg("count")
-# pac_est_sexo.rename(columns={"CANT_DET": "CANT_SEXO"}, inplace=True)
-# pac_est_sexo["PORCENTAJE"] = 0
-# # Porcentaje de pacientes estudiados por sexo
-# for i in range(len(pac_est_sexo)):
-#     porcentaje = round(pac_est_sexo["CANT_SEXO"].iloc[i]*100/len(pacientes_estudiados), 2)   
-#     pac_est_sexo["PORCENTAJE"].iloc[i] = porcentaje
-
-# # Número de pacientes estudiados por sexo y categoría de edad
-# pac_est_sexo_edad = pacientes_estudiados.groupby(["SEXO", "CAT_EDAD"]).agg("count")
-# pac_est_sexo_edad.rename(columns={"CANT_DET": "CANT"}, inplace=True)   
-# pac_est_sexo_edad.reset_index(inplace=True)
-# pac_est_sexo_edad = pac_est_sexo_edad.pivot(index="CAT_EDAD", columns="SEXO", values="CANT")
-# pac_est_sexo_edad.reset_index(inplace=True)
-
-# pac_est_sexo_edad["EDAD"] = ["< 6 meses" if x == 1
-#                      else "6 a 12 meses" if x == 2 
-#                      else "13 a 23 meses" if x == 3 
-#                      else "2 a 4 años" if x == 4 
-#                      else "5 a 9 años" if x == 5 
-#                      else "10 a 14 años" if x == 6
-#                      else "15 a 19 años" if x == 7
-#                      else "Adulto" 
-#                      for x in pac_est_sexo_edad["CAT_EDAD"]]
-     
-# # Gráfico población estudiada (sexo y edad)
-# y_edad = pac_est_sexo_edad["EDAD"]
-# x_M = pac_est_sexo_edad["M"]
-# x_F = pac_est_sexo_edad["F"] * -1
-# fig = go.Figure()
-# fig.add_trace(go.Bar(y= y_edad, x = x_M, 
-#                      name = "Varones", 
-#                      orientation = "h"))
-# fig.add_trace(go.Bar(y = y_edad, x = x_F,
-#                      name = "Mujeres", 
-#                      orientation = "h"))
-# fig.update_layout(title = "POBLACIÓN ESTUDIADA POR CATEGORÍA DE EDAD",
-#                  title_font_size = 20, barmode = 'relative',
-#                  bargap = 0.0, bargroupgap = 0,
-#                  xaxis = dict(tickvals = [-3000, -2000, -1000, -500,
-#                                           0, 500, 1000, 2000, 3000],
-                                
-#                               ticktext = ["3000", "2000", "1000", "500", 
-#                                           "0", "500", "1000", "2000", "3000"],
-#                               title = "Total estudiados",
-#                               title_font_size = 20),
-#                  yaxis = dict(title= "Categoría de Edad",
-#                               title_font_size = 20),
-#                  font=dict(size=20,
-#                              )
-#                  )
-# fig.update_yaxes(type='category')
-# fig.write_image("poblacion_acum.png", scale=2)
-# fig.show()
-
-# # Dataframe SOLO PEDIATRICOS
-# pediatricos = [1, 2, 3, 4, 5, 6, 7]
-# solo_ped = dataset[dataset["CAT_EDAD"].isin(pediatricos)]
-# ## Número y características de pacientes estudiados 
-# pacientes_ped_estudiados = solo_ped.groupby(["PAC_ID", "CAT_EDAD", "SEXO"]).size().to_frame()
-# pacientes_ped_estudiados.rename(columns={0:"CANT_DET"}, inplace=True)
-# pacientes_ped_estudiados.reset_index(inplace=True)
-# print(len(pacientes_ped_estudiados))
-# # Número de pacientes pediatricos estudiados por categoría de edad
-# pac_ped_edad = pacientes_ped_estudiados.groupby(["CAT_EDAD"]).agg("count")
-# pac_ped_edad.rename(columns={"CANT_DET": "CANT_EDAD"}, inplace=True)
-# pac_ped_edad["PORCENTAJE"] = 0
-# print(pac_ped_edad["CANT_EDAD"].sum())
-# # Porcentaje de pacientes pediatricos estudiados por categoría de edad
-# for i in range(0, len(pac_ped_edad)):
-#     porcentaje = round(pac_ped_edad["CANT_EDAD"].iloc[i]*100/len(pacientes_ped_estudiados), 1) 
-#     pac_ped_edad["PORCENTAJE"].iloc[i] = porcentaje
-
-# # Dataframe SOLO ADULTOS
-# solo_adultos = dataset[dataset["CAT_EDAD"] == "Adulto"]
-# adultos_estudiados = solo_adultos.groupby(["PAC_ID", "CAT_EDAD", "SEXO"]).size().to_frame()
-# adultos_estudiados.rename(columns={0:"CANT_DET"}, inplace=True)
-# adultos_estudiados.reset_index(inplace=True)
-# print(len(adultos_estudiados))
-
-# # Mediana de edad y rango, moda (categoría de edad). General
-# mediana = dataset["EDAD_AÑOS"].median()
-# print(mediana)
-# moda = dataset["CAT_EDAD"].mode()
-# print(moda)
-# maximo = dataset["EDAD_AÑOS"].max()  
-# print(maximo)
-# minimo = dataset["EDAD_AÑOS"].min()
-# print(minimo)
-
-# # Mediana de edad y rango, moda (categoría de edad). Pediatricos
-# mediana = solo_ped["EDAD_AÑOS"].median()
-# print(mediana)
-# moda = solo_ped["CAT_EDAD"].mode()
-# print(moda)
-# maximo = solo_ped["EDAD_AÑOS"].max()  
-# print(maximo)
-# minimo = solo_ped["EDAD_AÑOS"].min()
-# print(minimo)
-
-# ## Número de muestras procesadas
-# muestras_proc = dataset.groupby(["NUMERO"]).size().to_frame()
-# muestras_proc.rename(columns={0:"CANT_DET"}, inplace=True)
-# print(len(muestras_proc))
-# cant_det = muestras_proc["CANT_DET"].sum()
-# print(cant_det)
+# # Número de pacientes con al menos una infección respiratoria viral
+# nro_positivos = len(det_positivas["PAC_ID"].unique())
+# print(nro_positivos)
+# # Porcentaje de pacientes con al menos una infección respiratoria viral
+# print(round(nro_positivos*100/len(pacientes_estudiados), 2))
