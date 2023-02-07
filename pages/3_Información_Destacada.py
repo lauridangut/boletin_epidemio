@@ -232,7 +232,7 @@ if files:
     fig.add_trace(go.Bar(y = y_edad, x = x_F,
                           name = "Mujeres", 
                           orientation = "h"))
-    fig.update_layout(title = "POBLACIÓN ESTUDIADA POR CATEGORÍA DE EDAD",
+    fig.update_layout(title = "POBLACIÓN ESTUDIADA POR EDAD",
                       title_font_size = 20, barmode = 'relative',
                       bargap = 0.0, bargroupgap = 0,
                       xaxis = dict(tickvals = [-3000, -2000, -1000, -500,
@@ -254,7 +254,7 @@ if files:
     # Dataframe SOLO PEDIATRICOS
     excluir_adultos = ["Adulto"]
     solo_ped = dataframe[~dataframe["CAT_EDAD"].isin(excluir_adultos)]
-    # st.write(solo_ped)
+    st.write(solo_ped)
     ## Número y características de pacientes estudiados 
     pacientes_ped_estudiados = solo_ped.groupby(["PAC_ID", "CAT_EDAD", "SEXO"]).size().to_frame()
     pacientes_ped_estudiados.rename(columns={0:"CANT_DET"}, inplace=True)
@@ -268,7 +268,7 @@ if files:
     for i in range(0, len(pac_ped_edad)):
         porcentaje = round(pac_ped_edad["CANT_EDAD"].iloc[i]*100/len(pacientes_ped_estudiados), 1) 
         pac_ped_edad["PORCENTAJE"].iloc[i] = porcentaje
-    # # Mediana de edad y rango, moda (categoría de edad). Pediatricos
+    ## Mediana de edad y rango, moda (categoría de edad). Pediatricos
     mediana = solo_ped["EDAD_AÑOS"].median()
     moda = solo_ped["EDAD_AÑOS"].mode()
     maximo = solo_ped["EDAD_AÑOS"].max()  
@@ -281,7 +281,12 @@ if files:
     st.write(minimo)
     st.subheader("Rango de Edad en años de Pacientes Pediátricos estudiados (máx):", anchor=None)
     st.write(maximo)
-    # Cantidad de determinaciones realizadas por estudio
+    # Boxplot población pediátrica estudiada (sexo y edad) para representar mediana y rangos 
+    import plotly.express as px
+    boxplot = px.box(solo_ped, x='SEXO', y="EDAD_AÑOS")
+    st.plotly_chart(boxplot)
+    # Tabla: Cantidad de determinaciones realizadas por estudio
+    st.subheader("Cantidad de determinaciones realizadas por estudio")
     determinaciones_por_estudio = dataframe.groupby(["DET_CODIGO_1"]).size().to_frame()
     determinaciones_por_estudio.rename(columns={0: "DETERMINACIONES REALIZADAS"}, inplace=True)
     determinaciones_por_estudio.reset_index(inplace=True)
@@ -305,20 +310,51 @@ if files:
                     "PANFLUR":"Panparainfluenza (PCR)",
                     "PCR_C2":"SARS-CoV-2 (Filmarray)",
                     "VSR_RES":"Virus Respiratorio Sincicial (PCR)"})
-
     st.write(determinaciones_por_estudio)    
-
-    # # Tabla cantidad de determinaciones por estudio
-    # fig =  ff.create_table(determinaciones_por_estudio)
-    # fig.update_layout(
-    #     autosize=False,
-    #     width=800,
-    #     height=600,
-    # )
-    # fig.write_image("muestras_proc_est_acum.png", scale=2)
-    # fig.show()
-
-    # print(determinaciones_por_estudio["DETERMINACIONES REALIZADAS"].sum())
+    # Barplot: Cantidad de determinaciones realizadas por estudio (pediátricos y adultos)
+    fig = px.bar(determinaciones_por_estudio, y='DETERMINACIONES REALIZADAS', x='VIRUS (MÉTODO)', text='DETERMINACIONES REALIZADAS')
+    fig.update_traces(texttemplate='%{text:.2s}', textposition='outside')
+    fig.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')
+    st.plotly_chart(fig)
+    
+    # Barplot: Número de determinaciones positivas (filtrar columna RESULTADO y quedarme con todo lo que no sea No detectable). Sólo PEDIÁTRICOS
+    lista_positivos = ["Adenovirus", "Enterovirus", "Pancoronavirus", "SARS-CoV-2", "Coronavirus 299E", "Coronavirus HKU1", "Coronavirus NL63", "Coronavirus OC43", "Rhinovirus/Enterovirus",  "Parainfluenza 1", "Parainfluenza 2", "Parainfluenza 3", "Parainfluenza 4", "VSR", "Influenza A", "Influenza B", "Rhinovirus", "Metapneumovirus", "Panparainfluenza", "Metapneumovirus y Rhinovirus"]
+    positivos = solo_ped[solo_ped["RESULTADO"].isin(lista_positivos)]
+    st.write(positivos)
+    
+    import plotly.graph_objects as go
+    value_counts = positivos['ESTUDIO'].value_counts()
+    estudio = value_counts.index
+    counts = value_counts.values
+    
+    totales = solo_ped["ESTUDIO"].value_counts()
+    estudio_totales = totales.index
+    counts_totales = totales.values
+    
+    fig = go.Figure()
+    fig.add_trace(go.Bar(
+        x=estudio,
+        y=counts,
+        name='Positivos',
+        marker_color='indianred'
+    ))
+    
+    fig.add_trace(go.Bar(
+        x=estudio_totales,
+        y=counts_totales,
+        name='Total de determinaciones',
+        marker_color='lightsalmon'
+    ))
+    fig.update_layout(barmode='group', xaxis_tickangle=-45)
+    st.plotly_chart(fig)
+   
+    # Piechart: Distribución de virus respiratorios en muestras positivas. Sólo PEDIÁTRICOS.
+    pos_torta = positivos["RESULTADO"].value_counts()
+    st.write(pos_torta)
+    fig = px.pie(positivos, values=pos_torta, names=pos_torta.index)
+    fig.update_traces(textposition='inside')
+    fig.update_layout(uniformtext_minsize=12, uniformtext_mode='hide')
+    st.plotly_chart(fig)
 
 else:
     st.warning("Seleccione al menos un archivo .csv")
@@ -339,6 +375,18 @@ else:
 # )
 # fig.write_image("table_plotly.png", scale=2)
 # fig.show()
+
+# # Tabla cantidad de determinaciones por estudio
+# fig =  ff.create_table(determinaciones_por_estudio)
+# fig.update_layout(
+#     autosize=False,
+#     width=800,
+#     height=600,
+# )
+# fig.write_image("muestras_proc_est_acum.png", scale=2)
+# fig.show()
+
+# print(determinaciones_por_estudio["DETERMINACIONES REALIZADAS"].sum())
 
 # # Número de determinaciones positivas (filtrar columna DET_RESULTADO_1 y quedarme con todo lo que no sea No detectado o No detectable)
 # det_positivas = datos_resp_drop[(datos_resp_drop["RESULTADO"] == "Adenovirus") |
