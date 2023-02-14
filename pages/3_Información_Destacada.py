@@ -286,7 +286,7 @@ if files:
     boxplot = px.box(solo_ped, x='SEXO', y="EDAD_AÑOS")
     st.plotly_chart(boxplot)
     # Tabla: Cantidad de determinaciones realizadas por estudio
-    st.subheader("Cantidad de determinaciones realizadas por estudio")
+    st.subheader("Total de determinaciones realizadas por estudio (Pediátricos y Adultos acompañantes)")
     determinaciones_por_estudio = dataframe.groupby(["DET_CODIGO_1"]).size().to_frame()
     determinaciones_por_estudio.rename(columns={0: "DETERMINACIONES REALIZADAS"}, inplace=True)
     determinaciones_por_estudio.reset_index(inplace=True)
@@ -312,16 +312,20 @@ if files:
                     "VSR_RES":"Virus Respiratorio Sincicial (PCR)"})
     st.write(determinaciones_por_estudio)    
     # Barplot: Cantidad de determinaciones realizadas por estudio (pediátricos y adultos)
+    st.subheader("Total de determinaciones vs Estudio (Pediátricos y Adultos acompañantes)")
     fig = px.bar(determinaciones_por_estudio, y='DETERMINACIONES REALIZADAS', x='VIRUS (MÉTODO)', text='DETERMINACIONES REALIZADAS')
     fig.update_traces(texttemplate='%{text:.2s}', textposition='outside')
     fig.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')
     st.plotly_chart(fig)
     
-    # Barplot: Número de determinaciones positivas (filtrar columna RESULTADO y quedarme con todo lo que no sea No detectable). Sólo PEDIÁTRICOS
+    # Tabla: Pediátricos Positivos
     lista_positivos = ["Adenovirus", "Enterovirus", "Pancoronavirus", "SARS-CoV-2", "Coronavirus 299E", "Coronavirus HKU1", "Coronavirus NL63", "Coronavirus OC43", "Rhinovirus/Enterovirus",  "Parainfluenza 1", "Parainfluenza 2", "Parainfluenza 3", "Parainfluenza 4", "VSR", "Influenza A", "Influenza B", "Rhinovirus", "Metapneumovirus", "Panparainfluenza", "Metapneumovirus y Rhinovirus"]
     positivos = solo_ped[solo_ped["RESULTADO"].isin(lista_positivos)]
+    st.subheader("Pacientes Pediátricos con Infección Viral Respiratoria")
     st.write(positivos)
     
+    # Barplot: Número de determinaciones positivas (filtrar columna RESULTADO y quedarme con todo lo que no sea No detectable). Sólo PEDIÁTRICOS
+    st.subheader("Estudio vs Determinaciones: Pacientes Pediátricos.")
     import plotly.graph_objects as go
     value_counts = positivos['ESTUDIO'].value_counts()
     estudio = value_counts.index
@@ -349,6 +353,7 @@ if files:
     st.plotly_chart(fig)
    
     # Piechart: Distribución de virus respiratorios en muestras positivas. Sólo PEDIÁTRICOS.
+    st.subheader("Distribución de virus respiratorios en el total de muestras positivas de pacientes pediátricos")
     pos_torta = positivos["RESULTADO"].value_counts()
     st.write(pos_torta)
     fig = px.pie(positivos, values=pos_torta, names=pos_torta.index)
@@ -356,6 +361,41 @@ if files:
     fig.update_layout(uniformtext_minsize=12, uniformtext_mode='hide')
     st.plotly_chart(fig)
 
+    # Barplot Semana epidemiológica vs cantidad de casos positivos
+    st.subheader("Semana epidemiológica vs cantidad de casos positivos: pacientes pediátricos")
+    filtro_negativos = solo_ped[solo_ped["RESULTADO"] != "No detectable"]
+    filtro_negativos['Semana Epidemiológica'] = filtro_negativos['SEMANA_EPI'].astype(str).str[-2:]
+    barplot = filtro_negativos.groupby('Semana Epidemiológica', as_index=False)['RESULTADO'].value_counts()
+    barplot.rename(columns={"count": "Cantidad de casos"}, inplace=True)
+    st.write(barplot)
+    fig = px.bar(barplot, x="Semana Epidemiológica", y="Cantidad de casos", color= "RESULTADO", title="Cantidad de Casos por Semana Epidemiológica")
+    fig.update_layout(xaxis=dict(tickmode="linear", tick0=1, dtick=1))
+    st.plotly_chart(fig)
+   
+    # Tabla para graficar Semana epidemiológica vs porcentaje de positividad de cada virus
+    st.subheader("Dataframe para graficar Semana epidemiológica vs porcentaje de positividad: pacientes pediátricos")
+    temp_df = solo_ped.groupby(["ESTUDIO", "SEMANA_EPI", "RESULTADO"]).count().reset_index()
+    temp_df = temp_df[["ESTUDIO", "SEMANA_EPI", "RESULTADO", "FECHA_REC"]]
+    temp_df.rename(columns={"FECHA_REC": "Cantidad"}, inplace=True)
+    temp_df['SEMANA_EPI'] = temp_df['SEMANA_EPI'].astype(str).str[-2:]
+    temp_df_sum = temp_df.groupby(["ESTUDIO", "SEMANA_EPI"])["Cantidad"].sum().reset_index()
+    temp_df = pd.merge(temp_df, temp_df_sum, on=["ESTUDIO", "SEMANA_EPI"], how="left")
+    temp_df.rename(columns={"Cantidad_x": "Cantidad", "Cantidad_y": "Total Estudiados", "SEMANA_EPI": "Semana Epidemiológica"}, inplace=True)
+    temp_df["Porcentaje"] = (temp_df["Cantidad"]/temp_df["Total Estudiados"])*100
+    temp_df["Porcentaje"] = temp_df["Porcentaje"].round(1)
+    st.write(temp_df)
+    # Barplot Semana epidemiológica vs porcentaje de positividad de cada virus
+    st.subheader("Semana epidemiológica vs porcentaje de positividad: pacientes pediátricos")
+    filtro_nodetectables = temp_df[temp_df["RESULTADO"] != "No detectable"]
+    filtro_nodetectables.rename(columns={"Porcentaje":"Porcentaje de Positividad"}, inplace=True)
+    fig = px.bar(filtro_nodetectables, x="Semana Epidemiológica", y="Porcentaje de Positividad", color= "RESULTADO", title="Porcentaje de Positividad por Semana Epidemiológica")
+    fig.update_layout(xaxis=dict(tickmode="linear", tick0=1, dtick=1))
+    st.plotly_chart(fig)
+    
+    # Agregar análisis estadísticos: analizar si hay diferencias significativas en la misma semana entre los diferentes virus y además analizar si hay diferencias significativas entre semanas epidemiológicas siguiendo un mismo virus (estacionalidad de los virus respiratorios)
+    # Positivos por edad
+    # Coinfectados
+    # Infecciones Recurrentes
 else:
     st.warning("Seleccione al menos un archivo .csv")
  
