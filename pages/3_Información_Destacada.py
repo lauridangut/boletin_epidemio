@@ -351,12 +351,19 @@ if files:
     ))
     fig.update_layout(barmode='group', xaxis_tickangle=-45)
     st.plotly_chart(fig)
-   
+    
+    # Diccionarios de color:
+    color_list = ['#636efa', '#EF553B', '#00cc96', '#ab63fa', '#FFA15A', '#19d3f3', '#FF6692', '#B6E880', '#FF97FF', '#FECB52', '#FF6E8D', '#9BBC6B', '#FFD54F', '#A0836C', '#F29B76', '#8390FA', '#9CBAA9', '#D1B993', '#B2B2B2', '#EEDD82', '#CCCCCC']
+
+    color_dict = {"Adenovirus": color_list[0], "Enterovirus": color_list[1], "Pancoronavirus": color_list[2], "SARS-CoV-2": color_list[3], "Coronavirus 299E": color_list[4], "Coronavirus HKU1": color_list[5], "Coronavirus NL63": color_list[6], "Coronavirus OC43": color_list[7], "Rhinovirus/Enterovirus": color_list[8], "Parainfluenza 1": color_list[9], "Parainfluenza 2": color_list[10], "Parainfluenza 3": color_list[11], "Parainfluenza 4": color_list[12], "VSR": color_list[13], "Influenza A": color_list[14], "Influenza B": color_list[15], "Rhinovirus": color_list[16], "Metapneumovirus": color_list[17], "Panparainfluenza": color_list[18], "Metapneumovirus y Rhinovirus": color_list[19], "No detectable": color_list[20]}
+
+
+    
     # Piechart: Distribución de virus respiratorios en muestras positivas. Sólo PEDIÁTRICOS.
     st.subheader("Distribución de virus respiratorios en el total de muestras positivas de pacientes pediátricos")
     pos_torta = positivos["RESULTADO"].value_counts()
     st.write(pos_torta)
-    fig = px.pie(positivos, values=pos_torta, names=pos_torta.index)
+    fig = px.pie(positivos, values=pos_torta, names=pos_torta.index, color=pos_torta.index, color_discrete_map=color_dict)
     fig.update_traces(textposition='inside')
     fig.update_layout(uniformtext_minsize=12, uniformtext_mode='hide')
     st.plotly_chart(fig)
@@ -365,10 +372,10 @@ if files:
     st.subheader("Semana epidemiológica vs cantidad de casos positivos: pacientes pediátricos")
     filtro_negativos = solo_ped[solo_ped["RESULTADO"] != "No detectable"]
     filtro_negativos['Semana Epidemiológica'] = filtro_negativos['SEMANA_EPI'].astype(str).str[-2:]
-    barplot = filtro_negativos.groupby('Semana Epidemiológica', as_index=False)['RESULTADO'].value_counts()
+    barplot = filtro_negativos.groupby('Semana Epidemiológica')['RESULTADO'].value_counts().reset_index(name='count')
     barplot.rename(columns={"count": "Cantidad de casos"}, inplace=True)
     st.write(barplot)
-    fig = px.bar(barplot, x="Semana Epidemiológica", y="Cantidad de casos", color= "RESULTADO", title="Cantidad de Casos por Semana Epidemiológica")
+    fig = px.bar(barplot, x="Semana Epidemiológica", y="Cantidad de casos", color= "RESULTADO", title="Cantidad de Casos por Semana Epidemiológica", color_discrete_map=color_dict)
     fig.update_layout(xaxis=dict(tickmode="linear", tick0=1, dtick=1))
     st.plotly_chart(fig)
    
@@ -378,19 +385,33 @@ if files:
     temp_df = temp_df[["ESTUDIO", "SEMANA_EPI", "RESULTADO", "FECHA_REC"]]
     temp_df.rename(columns={"FECHA_REC": "Cantidad"}, inplace=True)
     temp_df['SEMANA_EPI'] = temp_df['SEMANA_EPI'].astype(str).str[-2:]
+    temp_df['ESTUDIO'].replace(['ADENOVIRUS POR PCR', 'ADV: DETERMINACIÓN Y/O CARGA'], 'ADENOVIRUS', inplace=True)
     temp_df_sum = temp_df.groupby(["ESTUDIO", "SEMANA_EPI"])["Cantidad"].sum().reset_index()
     temp_df = pd.merge(temp_df, temp_df_sum, on=["ESTUDIO", "SEMANA_EPI"], how="left")
     temp_df.rename(columns={"Cantidad_x": "Cantidad", "Cantidad_y": "Total Estudiados", "SEMANA_EPI": "Semana Epidemiológica"}, inplace=True)
-    temp_df["Porcentaje"] = (temp_df["Cantidad"]/temp_df["Total Estudiados"])*100
-    temp_df["Porcentaje"] = temp_df["Porcentaje"].round(1)
+    temp_df["Porcentaje"] = round(temp_df["Cantidad"]/temp_df["Total Estudiados"]*100, 1)
+
+    
+     #Solucionar desagrupamiento de adenovirus
+
+    
+    
+    
+    
+    
+    
     st.write(temp_df)
+    
     # Barplot Semana epidemiológica vs porcentaje de positividad de cada virus
     st.subheader("Semana epidemiológica vs porcentaje de positividad: pacientes pediátricos")
     filtro_nodetectables = temp_df[temp_df["RESULTADO"] != "No detectable"]
     filtro_nodetectables.rename(columns={"Porcentaje":"Porcentaje de Positividad"}, inplace=True)
-    fig = px.bar(filtro_nodetectables, x="Semana Epidemiológica", y="Porcentaje de Positividad", color= "RESULTADO", title="Porcentaje de Positividad por Semana Epidemiológica")
+    fig = px.bar(filtro_nodetectables, x="Semana Epidemiológica", y="Porcentaje de Positividad", color= "RESULTADO", color_discrete_map=color_dict, title="Porcentaje de Positividad por Semana Epidemiológica")
     fig.update_layout(xaxis=dict(tickmode="linear", tick0=1, dtick=1))
     st.plotly_chart(fig)
+    
+
+    
     
     # Agregar análisis estadísticos: analizar si hay diferencias significativas en la misma semana entre los diferentes virus y además analizar si hay diferencias significativas entre semanas epidemiológicas siguiendo un mismo virus (estacionalidad de los virus respiratorios)
     # Positivos por edad
