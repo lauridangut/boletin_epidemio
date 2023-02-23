@@ -381,25 +381,16 @@ if files:
    
     # Tabla para graficar Semana epidemiológica vs porcentaje de positividad de cada virus
     st.subheader("Dataframe para graficar Semana epidemiológica vs porcentaje de positividad: pacientes pediátricos")
-    temp_df = solo_ped.groupby(["ESTUDIO", "SEMANA_EPI", "RESULTADO"]).count().reset_index()
+    adeno_desagrup = solo_ped.copy()
+    adeno_desagrup['ESTUDIO'].replace(['ADENOVIRUS POR PCR', 'ADV: DETERMINACIÓN Y/O CARGA'], 'ADENOVIRUS', inplace=True)
+    temp_df = adeno_desagrup.groupby(["ESTUDIO", "SEMANA_EPI", "RESULTADO"]).count().reset_index()
     temp_df = temp_df[["ESTUDIO", "SEMANA_EPI", "RESULTADO", "FECHA_REC"]]
     temp_df.rename(columns={"FECHA_REC": "Cantidad"}, inplace=True)
     temp_df['SEMANA_EPI'] = temp_df['SEMANA_EPI'].astype(str).str[-2:]
-    temp_df['ESTUDIO'].replace(['ADENOVIRUS POR PCR', 'ADV: DETERMINACIÓN Y/O CARGA'], 'ADENOVIRUS', inplace=True)
     temp_df_sum = temp_df.groupby(["ESTUDIO", "SEMANA_EPI"])["Cantidad"].sum().reset_index()
     temp_df = pd.merge(temp_df, temp_df_sum, on=["ESTUDIO", "SEMANA_EPI"], how="left")
     temp_df.rename(columns={"Cantidad_x": "Cantidad", "Cantidad_y": "Total Estudiados", "SEMANA_EPI": "Semana Epidemiológica"}, inplace=True)
     temp_df["Porcentaje"] = round(temp_df["Cantidad"]/temp_df["Total Estudiados"]*100, 1)
-
-    
-     #Solucionar desagrupamiento de adenovirus
-
-    
-    
-    
-    
-    
-    
     st.write(temp_df)
     
     # Barplot Semana epidemiológica vs porcentaje de positividad de cada virus
