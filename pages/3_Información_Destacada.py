@@ -380,7 +380,7 @@ if files:
     st.plotly_chart(fig)
    
     # Tabla para graficar Semana epidemiológica vs porcentaje de positividad de cada virus
-    st.subheader("Dataframe para graficar Semana epidemiológica vs porcentaje de positividad: pacientes pediátricos")
+    st.subheader("Dataframe Interactivo para graficar Semana epidemiológica vs porcentaje de positividad: pacientes pediátricos")
     adeno_desagrup = solo_ped.copy()
     adeno_desagrup['ESTUDIO'].replace(['ADENOVIRUS POR PCR', 'ADV: DETERMINACIÓN Y/O CARGA'], 'ADENOVIRUS', inplace=True)
     temp_df = adeno_desagrup.groupby(["ESTUDIO", "SEMANA_EPI", "RESULTADO"]).count().reset_index()
@@ -389,19 +389,42 @@ if files:
     temp_df['SEMANA_EPI'] = temp_df['SEMANA_EPI'].astype(str).str[-2:]
     temp_df_sum = temp_df.groupby(["ESTUDIO", "SEMANA_EPI"])["Cantidad"].sum().reset_index()
     temp_df = pd.merge(temp_df, temp_df_sum, on=["ESTUDIO", "SEMANA_EPI"], how="left")
-    temp_df.rename(columns={"Cantidad_x": "Cantidad", "Cantidad_y": "Total Estudiados", "SEMANA_EPI": "Semana Epidemiológica"}, inplace=True)
+    temp_df.rename(columns={"Cantidad_x": "Cantidad", "Cantidad_y": "Total Estudiados", "SEMANA_EPI": "Semana Epidemiológica", "ESTUDIO": "Estudio", "RESULTADO": "Resultado"}, inplace=True)
     temp_df["Porcentaje"] = round(temp_df["Cantidad"]/temp_df["Total Estudiados"]*100, 1)
-    st.write(temp_df)
+
+
+    # DataFrame Interactivo
+    from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode
+    gb = GridOptionsBuilder.from_dataframe(temp_df)
+    gb.configure_pagination(paginationAutoPageSize=True) #Add pagination
+    gb.configure_side_bar() #Add a sidebar
+    gb.configure_selection('multiple', use_checkbox=True, groupSelectsChildren="Group checkbox select children") #Enable multi-row selection
+    gridOptions = gb.build()
+    
+    grid_response = AgGrid(
+        temp_df,
+        gridOptions=gridOptions,
+        data_return_mode='AS_INPUT', 
+        update_mode='MODEL_CHANGED', 
+        fit_columns_on_grid_load=False,
+        theme='alpine', #Add theme color to the table
+        enable_enterprise_modules=True,
+        height=600, 
+        width='100%',
+        reload_data=True
+    )
+    
+    data = grid_response['data']
+    selected = grid_response['selected_rows'] 
+    df = pd.DataFrame(selected) #Pass the selected rows to a new dataframe df
     
     # Barplot Semana epidemiológica vs porcentaje de positividad de cada virus
     st.subheader("Semana epidemiológica vs porcentaje de positividad: pacientes pediátricos")
-    filtro_nodetectables = temp_df[temp_df["RESULTADO"] != "No detectable"]
+    filtro_nodetectables = temp_df[temp_df["Resultado"] != "No detectable"]
     filtro_nodetectables.rename(columns={"Porcentaje":"Porcentaje de Positividad"}, inplace=True)
-    fig = px.bar(filtro_nodetectables, x="Semana Epidemiológica", y="Porcentaje de Positividad", color= "RESULTADO", color_discrete_map=color_dict, title="Porcentaje de Positividad por Semana Epidemiológica")
+    fig = px.bar(filtro_nodetectables, x="Semana Epidemiológica", y="Porcentaje de Positividad", color= "Resultado", color_discrete_map=color_dict, title="Porcentaje de Positividad por Semana Epidemiológica")
     fig.update_layout(xaxis=dict(tickmode="linear", tick0=1, dtick=1))
     st.plotly_chart(fig)
-    
-
     
     
     # Agregar análisis estadísticos: analizar si hay diferencias significativas en la misma semana entre los diferentes virus y además analizar si hay diferencias significativas entre semanas epidemiológicas siguiendo un mismo virus (estacionalidad de los virus respiratorios)
