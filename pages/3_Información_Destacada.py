@@ -417,12 +417,19 @@ if files:
     data = grid_response['data']
     selected = grid_response['selected_rows'] 
     df = pd.DataFrame(selected) #Pass the selected rows to a new dataframe df
-    
+
     # Barplot Semana epidemiológica vs porcentaje de positividad de cada virus
     st.subheader("Semana epidemiológica vs porcentaje de positividad: pacientes pediátricos")
     filtro_nodetectables = temp_df[temp_df["Resultado"] != "No detectable"]
     filtro_nodetectables.rename(columns={"Porcentaje":"Porcentaje de Positividad"}, inplace=True)
     fig = px.bar(filtro_nodetectables, x="Semana Epidemiológica", y="Porcentaje de Positividad", color= "Resultado", color_discrete_map=color_dict, title="Porcentaje de Positividad por Semana Epidemiológica")
+    fig.update_layout(xaxis=dict(tickmode="linear", tick0=1, dtick=1))
+    st.plotly_chart(fig)
+    
+    
+    # Prueba barplot a partir de DataFrame interactivo
+    st.subheader("Prueba barplot a partir de DataFrame interactivo")
+    fig = px.bar(df, x="Semana Epidemiológica", y="Porcentaje", color="Resultado", color_discrete_map=color_dict, title="Porcentaje de Positividad por Semana Epidemiológica")
     fig.update_layout(xaxis=dict(tickmode="linear", tick0=1, dtick=1))
     st.plotly_chart(fig)
     
