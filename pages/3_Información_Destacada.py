@@ -228,10 +228,12 @@ if files:
     fig = go.Figure()
     fig.add_trace(go.Bar(y= y_edad, x = x_M, 
                           name = "Varones", 
-                          orientation = "h"))
+                          orientation = "h",
+                          marker_color='#89c2d9'))
     fig.add_trace(go.Bar(y = y_edad, x = x_F,
                           name = "Mujeres", 
-                          orientation = "h"))
+                          orientation = "h",
+                          marker_color='#9d4edd'))
     fig.update_layout(title = "POBLACIÓN ESTUDIADA POR EDAD",
                       title_font_size = 20, barmode = 'relative',
                       bargap = 0.0, bargroupgap = 0,
@@ -255,37 +257,45 @@ if files:
     excluir_adultos = ["Adulto"]
     solo_ped = dataframe[~dataframe["CAT_EDAD"].isin(excluir_adultos)]
     st.write(solo_ped)
+    
     ## Número y características de pacientes estudiados 
     pacientes_ped_estudiados = solo_ped.groupby(["PAC_ID", "CAT_EDAD", "SEXO"]).size().to_frame()
     pacientes_ped_estudiados.rename(columns={0:"CANT_DET"}, inplace=True)
     pacientes_ped_estudiados.reset_index(inplace=True)
     # st.write(pacientes_ped_estudiados)
+    
     # Número de pacientes pediatricos estudiados por categoría de edad
     pac_ped_edad = pacientes_ped_estudiados.groupby(["CAT_EDAD"]).agg("count")
     pac_ped_edad.rename(columns={"CANT_DET": "CANT_EDAD"}, inplace=True)
     pac_ped_edad["PORCENTAJE"] = 0
+    
     # Porcentaje de pacientes pediatricos estudiados por categoría de edad
     for i in range(0, len(pac_ped_edad)):
         porcentaje = round(pac_ped_edad["CANT_EDAD"].iloc[i]*100/len(pacientes_ped_estudiados), 1) 
         pac_ped_edad["PORCENTAJE"].iloc[i] = porcentaje
+        
     ## Mediana de edad y rango, moda (categoría de edad). Pediatricos
-    mediana = solo_ped["EDAD_AÑOS"].median()
-    moda = solo_ped["EDAD_AÑOS"].mode()
-    maximo = solo_ped["EDAD_AÑOS"].max()  
-    minimo = solo_ped["EDAD_AÑOS"].min()
-    st.subheader("Mediana de Edad en años de Pacientes Pediátricos estudiados:", anchor=None)
-    st.write(mediana)
-    st.subheader("Moda de Edad en años de Pacientes Pediátricos estudiados:", anchor=None)
-    st.write(moda[0])
-    st.subheader("Rango de Edad en años de Pacientes Pediátricos estudiados (min):", anchor=None)
-    st.write(minimo)
-    st.subheader("Rango de Edad en años de Pacientes Pediátricos estudiados (máx):", anchor=None)
-    st.write(maximo)
+    # mediana = solo_ped["EDAD_AÑOS"].median()
+    # moda = solo_ped["EDAD_AÑOS"].mode()
+    # maximo = solo_ped["EDAD_AÑOS"].max()  
+    # minimo = solo_ped["EDAD_AÑOS"].min()
+    # st.subheader("Mediana de Edad en años de Pacientes Pediátricos estudiados:", anchor=None)
+    # st.write(mediana)
+    # st.subheader("Moda de Edad en años de Pacientes Pediátricos estudiados:", anchor=None)
+    # st.write(moda[0])
+    # st.subheader("Rango de Edad en años de Pacientes Pediátricos estudiados (min):", anchor=None)
+    # st.write(minimo)
+    # st.subheader("Rango de Edad en años de Pacientes Pediátricos estudiados (máx):", anchor=None)
+    # st.write(maximo)
+    
     # Boxplot población pediátrica estudiada (sexo y edad) para representar mediana y rangos 
     import plotly.express as px
-    boxplot = px.box(solo_ped, x='SEXO', y="EDAD_AÑOS")
+    st.subheader("Características de la Población Pediátrica estudiada", anchor=None)
+    # boxplot = px.box(solo_ped, x='SEXO', y="EDAD_AÑOS", color_discrete_sequence=['#9d4edd'])
+    boxplot = px.box(solo_ped, x='SEXO', y="EDAD_AÑOS", color="SEXO", color_discrete_map={"F": "#9d4edd", "M": "#89c2d9"})
     st.plotly_chart(boxplot)
-    # Tabla: Cantidad de determinaciones realizadas por estudio
+    
+    # DataFrame Interactivo 2: Cantidad de determinaciones realizadas por estudio
     st.subheader("Total de determinaciones realizadas por estudio (Pediátricos y Adultos acompañantes)")
     determinaciones_por_estudio = dataframe.groupby(["DET_CODIGO_1"]).size().to_frame()
     determinaciones_por_estudio.rename(columns={0: "DETERMINACIONES REALIZADAS"}, inplace=True)
@@ -310,13 +320,52 @@ if files:
                     "PANFLUR":"Panparainfluenza (PCR)",
                     "PCR_C2":"SARS-CoV-2 (Filmarray)",
                     "VSR_RES":"Virus Respiratorio Sincicial (PCR)"})
-    st.write(determinaciones_por_estudio)    
+    # st.write(determinaciones_por_estudio)    
+    
+    from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode
+    gb = GridOptionsBuilder.from_dataframe(determinaciones_por_estudio)
+    gb.configure_pagination(paginationAutoPageSize=True) #Add pagination
+    gb.configure_side_bar() #Add a sidebar
+    gb.configure_selection('multiple', use_checkbox=True, groupSelectsChildren="Group checkbox select children") #Enable multi-row selection
+    gridOptions = gb.build()
+    
+    grid_response = AgGrid(
+        determinaciones_por_estudio,
+        gridOptions=gridOptions,
+        data_return_mode='AS_INPUT', 
+        update_mode='MODEL_CHANGED', 
+        fit_columns_on_grid_load=False,
+        theme='alpine', #Add theme color to the table
+        enable_enterprise_modules=True,
+        height=600, 
+        width='40%',
+        reload_data=True
+    )
+    
+    data1 = grid_response['data']
+    selected1 = grid_response['selected_rows'] 
+    df1 = pd.DataFrame(selected1) #Pass the selected rows to a new dataframe df
+    
     # Barplot: Cantidad de determinaciones realizadas por estudio (pediátricos y adultos)
-    st.subheader("Total de determinaciones vs Estudio (Pediátricos y Adultos acompañantes)")
-    fig = px.bar(determinaciones_por_estudio, y='DETERMINACIONES REALIZADAS', x='VIRUS (MÉTODO)', text='DETERMINACIONES REALIZADAS')
-    fig.update_traces(texttemplate='%{text:.2s}', textposition='outside')
-    fig.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')
-    st.plotly_chart(fig)
+    # st.subheader("Total de determinaciones vs Estudio (Pediátricos y Adultos acompañantes)")
+    # fig = px.bar(determinaciones_por_estudio, y='DETERMINACIONES REALIZADAS', x='VIRUS (MÉTODO)', text='DETERMINACIONES REALIZADAS')
+    # fig.update_traces(texttemplate='%{text:.2s}', textposition='outside')
+    # fig.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')
+    # st.plotly_chart(fig)
+    
+    color_list = ['#636efa', '#EF553B', '#00cc96', '#ab63fa', '#FFA15A', '#19d3f3', '#FF6692', '#B6E880', '#FF97FF', '#FECB52', '#FF6E8D', '#9BBC6B', '#FFD54F', '#A0836C', '#F29B76', '#8390FA', '#9CBAA9', '#D1B993', '#B2B2B2', '#EEDD82', '#CCCCCC']
+
+    color_dictionary = {"Adenovirus (PCR)": color_list[0], "Enterovirus (PCR)": color_list[1], "Adenovirus (Determinación y/o carga)": color_list[0] ,"Pancoronavirus (PCR)": color_list[2], "SARS-CoV-2 (PCR)": color_list[3], "Coronavirus 299E (Filmarray)": color_list[4], "Coronavirus HKU1 (Filmarray)": color_list[5], "Coronavirus NL63 (Filmarray)": color_list[6], "Coronavirus OC43 (Filmarray)": color_list[7], "Rhinovirus/Enterovirus (Filmarray)": color_list[8], "Parainfluenza 1 (Filmarray)": color_list[9], "Parainfluenza 2 (Filmarray)": color_list[10], "Parainfluenza 3 (Filmarray)": color_list[11], "Parainfluenza 4 (Filmarray)": color_list[12], "Virus Respiratorio Sincicial (Filmarray)": color_list[13], "Influenza A y B (PCR)": color_list[14], "Metapneumovirus y Rhinovirus (PCR)": color_list[19], "Panparainfluenza": color_list[18], "SARS-CoV-2 (Filmarray)": color_list[3], "Rhinovirus": color_list[16], "Virus Respiratorio Sincicial (PCR)": color_list[13]}
+    
+    st.subheader("Visualice la cantidad de determinaciones realizadas por estudio a partir del DataFrame Interactivo (Pediátricos y Adultos acompañantes):")
+    if selected1:
+        fig = px.bar(df1, x='VIRUS (MÉTODO)', y='DETERMINACIONES REALIZADAS', color="VIRUS (MÉTODO)", color_discrete_map=color_dictionary, title="DETERMINACIONES REALIZADAS")
+        fig.update_traces(texttemplate='%{text:.2s}', textposition='outside')
+        fig.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')
+        st.plotly_chart(fig)
+    else:
+        st.write("Seleccione las filas de la tabla que desee graficar.")
+    
     
     # Tabla: Pediátricos Positivos
     lista_positivos = ["Adenovirus", "Enterovirus", "Pancoronavirus", "SARS-CoV-2", "Coronavirus 299E", "Coronavirus HKU1", "Coronavirus NL63", "Coronavirus OC43", "Rhinovirus/Enterovirus",  "Parainfluenza 1", "Parainfluenza 2", "Parainfluenza 3", "Parainfluenza 4", "VSR", "Influenza A", "Influenza B", "Rhinovirus", "Metapneumovirus", "Panparainfluenza", "Metapneumovirus y Rhinovirus"]
@@ -349,8 +398,8 @@ if files:
         name='Total de determinaciones',
         marker_color='lightsalmon'
     ))
-    fig.update_layout(barmode='group', xaxis_tickangle=-45)
-    st.plotly_chart(fig)
+    fig.update_layout(barmode='group', xaxis_tickangle=90)
+    st.plotly_chart(fig, height=1200, width=1600)
     
     # Diccionarios de color:
     color_list = ['#636efa', '#EF553B', '#00cc96', '#ab63fa', '#FFA15A', '#19d3f3', '#FF6692', '#B6E880', '#FF97FF', '#FECB52', '#FF6E8D', '#9BBC6B', '#FFD54F', '#A0836C', '#F29B76', '#8390FA', '#9CBAA9', '#D1B993', '#B2B2B2', '#EEDD82', '#CCCCCC']
@@ -368,17 +417,6 @@ if files:
     fig.update_layout(uniformtext_minsize=12, uniformtext_mode='hide')
     st.plotly_chart(fig)
 
-    # Barplot Semana epidemiológica vs cantidad de casos positivos
-    st.subheader("Semana epidemiológica vs cantidad de casos positivos: pacientes pediátricos")
-    filtro_negativos = solo_ped[solo_ped["RESULTADO"] != "No detectable"]
-    filtro_negativos['Semana Epidemiológica'] = filtro_negativos['SEMANA_EPI'].astype(str).str[-2:]
-    barplot = filtro_negativos.groupby('Semana Epidemiológica')['RESULTADO'].value_counts().reset_index(name='count')
-    barplot.rename(columns={"count": "Cantidad de casos"}, inplace=True)
-    st.write(barplot)
-    fig = px.bar(barplot, x="Semana Epidemiológica", y="Cantidad de casos", color= "RESULTADO", title="Cantidad de Casos por Semana Epidemiológica", color_discrete_map=color_dict)
-    fig.update_layout(xaxis=dict(tickmode="linear", tick0=1, dtick=1))
-    st.plotly_chart(fig)
-   
     # Tabla para graficar Semana epidemiológica vs porcentaje de positividad de cada virus
     st.subheader("Dataframe Interactivo para graficar Semana epidemiológica vs porcentaje de positividad: pacientes pediátricos")
     adeno_desagrup = solo_ped.copy()
@@ -393,8 +431,7 @@ if files:
     temp_df["Porcentaje"] = round(temp_df["Cantidad"]/temp_df["Total Estudiados"]*100, 1)
 
 
-    # DataFrame Interactivo
-    from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode
+    # DataFrame Interactivo 2
     gb = GridOptionsBuilder.from_dataframe(temp_df)
     gb.configure_pagination(paginationAutoPageSize=True) #Add pagination
     gb.configure_side_bar() #Add a sidebar
@@ -428,10 +465,14 @@ if files:
     
     
     # Prueba barplot a partir de DataFrame interactivo
-    st.subheader("Prueba barplot a partir de DataFrame interactivo")
-    fig = px.bar(df, x="Semana Epidemiológica", y="Porcentaje", color="Resultado", color_discrete_map=color_dict, title="Porcentaje de Positividad por Semana Epidemiológica")
-    fig.update_layout(xaxis=dict(tickmode="linear", tick0=1, dtick=1))
-    st.plotly_chart(fig)
+    st.subheader("Personalice el barplot a partir del DataFrame Interactivo:")
+    if selected:
+        fig = px.bar(df, x="Semana Epidemiológica", y="Porcentaje", color="Resultado", color_discrete_map=color_dict, title="Porcentaje de Positividad por Semana Epidemiológica")
+        fig.update_layout(xaxis=dict(tickmode="linear", tick0=1, dtick=1))
+        st.plotly_chart(fig)
+    else:
+        st.write("Seleccione las filas presionando la tecla Shift y, simultáneamente, haga click en el DataFrame interactivo para visualizar el Porcentaje de Positividad según la Semana Epidemiológica. No olvide filtrar 'No detectable' de la columna Resultado.")
+
     
     
     # Agregar análisis estadísticos: analizar si hay diferencias significativas en la misma semana entre los diferentes virus y además analizar si hay diferencias significativas entre semanas epidemiológicas siguiendo un mismo virus (estacionalidad de los virus respiratorios)
@@ -441,6 +482,7 @@ if files:
 else:
     st.warning("Seleccione al menos un archivo .csv")
  
+
 
 # # Tabla categorías de edad
 # cat_edad = {
