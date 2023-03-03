@@ -40,7 +40,33 @@ st.sidebar.image(
 st.header("Servicio de Microbiología - Hospital de Pediatría S.A.M.I.C. 'Prof. Dr. Juan P. Garrahan'")
 
 #Header
-st.title("Carga de datos y primeros análisis")
+from typing import Optional
+
+def colored_header(
+    label: str = "Nice title",
+    description: Optional[str] = "Cool description",
+    color_name: str = "#9d4edd",
+):
+    """
+    Shows a header with a colored underline and an optional description.
+    """
+    st.title(label)
+    st.write(
+        f'<hr style="background-color: {color_name}; margin-top: 0;'
+        ' margin-bottom: 0; height: 3px; border: none; border-radius: 3px;">',
+        unsafe_allow_html=True,
+    )
+    if description:
+        st.caption(description)
+        
+descripcion = "Utilice el sistema informático hospitalario SIG-HG para extraer la información a analizar"
+        
+colored_header(
+    label="Carga de datos y primeros análisis",
+    description=descripcion,
+    color_name="#9d4edd",
+)
+
 
 # Obtener una lista de archivos csv seleccionados por el usuario, leer los archivos, concatenarlos y hacer limpieza de los datos
 
@@ -514,6 +540,8 @@ if files:
         st.write("Seleccioná las filas de la tabla anterior presionando la tecla Shift del teclado y, simultáneamente, hacé click en el DataFrame interactivo para visualizar el Porcentaje de Positividad según la Semana Epidemiológica. No olvides filtrar 'No detectable' de la columna Resultado.")
 
     
+    
+    # Agregar calendario epidemiológico?
     
     # Agregar análisis estadísticos: analizar si hay diferencias significativas en la misma semana entre los diferentes virus y además analizar si hay diferencias significativas entre semanas epidemiológicas siguiendo un mismo virus (estacionalidad de los virus respiratorios)
     

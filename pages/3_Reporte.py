@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Fri Jan 13 14:10:22 2023
+Created on Mon Jan 16 15:21:50 2023
 
 @author: usuario
 """
 import streamlit as st
+import pdfkit
+
 
 #Título de la página
 st.set_page_config(
@@ -21,11 +23,6 @@ st.sidebar.image(
 
 #Principal
 st.header("Servicio de Microbiología - Hospital de Pediatría S.A.M.I.C. 'Prof. Dr. Juan P. Garrahan'")
-
-#Cuerpo
-# st.subheader("¡Bienvenidos!")
-# st.caption("Esta aplicación fue desarrollada por el equipo de Bioinformática del Hospital de Pediatría S.A.M.I.C. 'Prof. Dr. Juan P. Garrahan'.")
-# st.caption("La fuente de información utilizada para el análisis de datos proviene del sistema informático hospitalario SIG-HG.")
 
 from typing import Optional
 
@@ -45,12 +42,27 @@ def colored_header(
     )
     if description:
         st.caption(description)
-
-
-titulo = "¡Bienvenidos!"
-descripcion = "Esta es una aplicación que tiene como objetivo proporcionar una herramienta para analizar datos epidemiológicos sobre infecciones respiratorias producidas por virus. La misma es una interfaz de usuario interactiva que permite a los usuarios cargar y visualizar datos, así como aplicar técnicas de análisis de datos para obtener información relevante sobre la propagación de las enfermedades respiratorias y su impacto en la salud pública pediátrica."
+        
+descripcion = "Descargue los análisis realizados en formato PDF"
+        
 colored_header(
-    label=titulo,
+    label="Reporte del Análisis Epidemiológico",
     description=descripcion,
     color_name="#9d4edd",
 )
+
+
+def streamlit_to_pdf(filename):
+    config = pdfkit.configuration(wkhtmltopdf='./bin/wkhtmltopdf')
+    options = {
+        'page-size': 'A4',
+        'margin-top': '0mm',
+        'margin-right': '0mm',
+        'margin-bottom': '0mm',
+        'margin-left': '0mm'
+    }
+    pdfkit.from_file(filename, 'report.pdf', configuration=config, options=options)
+
+if st.button('Generar reporte en PDF'):
+    streamlit_to_pdf('3_Información_Destacada.py')
+    st.success('¡El reporte en PDF ha sido generado con éxito!')
