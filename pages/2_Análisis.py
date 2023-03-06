@@ -59,7 +59,7 @@ def colored_header(
     if description:
         st.caption(description)
         
-descripcion = "Utilice el sistema informático hospitalario SIG-HG para extraer la información a analizar"
+descripcion = "📌 Utilice el sistema informático hospitalario SIG-HG para extraer la información a analizar"
         
 colored_header(
     label="Carga de datos y primeros análisis",
@@ -182,7 +182,11 @@ if files:
     dataset["DET_CODIGO_1"].loc[(dataset["DET_CODIGO_1"] == "MYRVD")] = "MYR"
     ## Ordenar por determinación para facilitar visualización
     dataset = dataset.sort_values(["DET_CODIGO_1", "SEMANA_EPI"])
+    
+    # Breve descripción del output
+    st.caption("📌 Los archivos ingresados fueron procesados para obtener el DataFrame que se muestra a continuación. Éste contiene, a diferencia de los archivos que le dieron origen: una columna con el dato de Semana Epidemiológica, una columna con la edad de los pacientes en meses y otra con la edad en años, y una columna con la edad en categorías. Adicionalmente, se seleccionaron las filas correspondientes a muestras respiratorias, se homogeneizaron mayúsculas y minúsculas, se colocaron los resultados de las determinaciones en una única columna y se eliminaron datos duplicados y filas sin resultado.", unsafe_allow_html=False)
     st.dataframe(dataset)
+    
     # # Descargar el archivo
     @st.cache
     def convert_df(df):
@@ -209,6 +213,7 @@ if files:
     # Widget métricas
     from streamlit_extras.metric_cards import style_metric_cards
     st.subheader("Algunos números...:memo:")
+    st.caption("📌 A partir del DataFrame anterior, se derivan las siguientes métricas:", unsafe_allow_html=False)
     col1, col2 = st.columns(2)
     col1.metric(label="Cantidad de determinaciones realizadas", value=cantidad_determinaciones)
     col2.metric(label="Cantidad de pacientes estudiados", value=cant_pac_estudiados)
@@ -248,6 +253,8 @@ if files:
     pac_est_sexo_edad["EDAD"] = pac_est_sexo_edad["CAT_EDAD"].replace(edad_dict)
 
     # Gráfico población estudiada (sexo y edad)
+    st.subheader("Población estudiada en función de edad y sexo")
+    st.caption("📌 El siguiente gráfico muestra la distribución de la población estudiada por edad y sexo. En el eje vertical se muestra la edad y en el eje horizontal se muestra el número total de pacientes estudiados. Hay dos barras para cada edad: una para los varones y otra para las mujeres. La barra azul representa el número de varones y la barra violeta representa el número de mujeres. Pose el mouse sobre cada barra para visualizar la cantidad de pacientes estudiados. Para descargar la imagen, haga click en el ícono 📷 ('Download plot as png').", unsafe_allow_html=False)
     import plotly.graph_objects as go
     y_edad = pac_est_sexo_edad["EDAD"]
     x_M = pac_est_sexo_edad["M"]
@@ -261,7 +268,7 @@ if files:
                           name = "Mujeres", 
                           orientation = "h",
                           marker_color='#9d4edd'))
-    fig.update_layout(title = "POBLACIÓN ESTUDIADA POR EDAD",
+    fig.update_layout(title = "POBLACIÓN ESTUDIADA POR EDAD Y SEXO",
                       title_font_size = 20, barmode = 'relative',
                       bargap = 0.0, bargroupgap = 0,
                       xaxis = dict(tickvals = [-3000, -2000, -1000, -500,
@@ -281,6 +288,7 @@ if files:
 
     # Hacer un chart container para DataFrame sólo pacientes pediátricos y Características de la Población Pediátrica estudiada    
     st.subheader("Características de la Población Pediátrica estudiada")
+    st.caption("📌 A continuación se grafica un boxplot para representar la mediana y los rangos de edad de la población pediátrica estudiada, según sexo. Para descargar la imagen, haga click en el ícono 📷 ('Download plot as png'). Además, puede posar el mouse sobre el gráfico para visualizar información adicional. Obsérvese, también, que se crea una pestaña para el gráfico, otra para el DataFrame que contiene los datos únicamente de los pacientes pediátricos y que le da origen al boxplot y, por último, otra pestaña para descargarlo en formato CSV.", unsafe_allow_html=False)
     # Dataframe SOLO PEDIATRICOS
     # st.subheader("DataFrame sólo pacientes pediátricos")
     excluir_adultos = ["Adulto"]
@@ -305,9 +313,6 @@ if files:
            
     # Boxplot población pediátrica estudiada (sexo y edad) para representar mediana y rangos 
     import plotly.express as px
-    # st.subheader("Características de la Población Pediátrica estudiada", anchor=None)
-    # boxplot = px.box(solo_ped, x='SEXO', y="EDAD_AÑOS", color="SEXO", color_discrete_map={"F": "#9d4edd", "M": "#89c2d9"})
-    # st.plotly_chart(boxplot)
     
     def export_csv(df):
         csv = df.to_csv(index=False)
@@ -326,7 +331,7 @@ if files:
             st.dataframe(data)
         
         with tabs[2]:
-            st.download_button('Descargar CSV', data=export_csv(data), file_name='data.csv', mime='text/csv')
+            st.download_button('Descargar CSV', data=export_csv(data), file_name='pediatricos.csv', mime='text/csv')
     
     
     if __name__ == '__main__':
@@ -334,10 +339,14 @@ if files:
         # Creamos el contenedor
         chart_container(solo_ped)
         
+    # Diccionario de colores para gráficos
+    color_list = ['#636efa', '#EF553B', '#00cc96', '#ab63fa', '#FFA15A', '#19d3f3', '#FF6692', '#B6E880', '#FF97FF', '#FECB52', '#FF6E8D', '#9BBC6B', '#FFD54F', '#A0836C', '#F29B76', '#8390FA', '#9CBAA9', '#D1B993', '#B2B2B2', '#EEDD82', '#CCCCCC']
 
+    color_dictionary = {"Adenovirus (PCR)": color_list[0], "Enterovirus (PCR)": color_list[1], "Adenovirus (Determinación y/o carga)": color_list[0] ,"Pancoronavirus (PCR)": color_list[2], "SARS-CoV-2 (PCR)": color_list[3], "Coronavirus 299E (Filmarray)": color_list[4], "Coronavirus HKU1 (Filmarray)": color_list[5], "Coronavirus NL63 (Filmarray)": color_list[6], "Coronavirus OC43 (Filmarray)": color_list[7], "Rhinovirus/Enterovirus (Filmarray)": color_list[8], "Parainfluenza 1 (Filmarray)": color_list[9], "Parainfluenza 2 (Filmarray)": color_list[10], "Parainfluenza 3 (Filmarray)": color_list[11], "Parainfluenza 4 (Filmarray)": color_list[12], "Virus Respiratorio Sincicial (Filmarray)": color_list[13], "Influenza A y B (PCR)": color_list[14], "Metapneumovirus y Rhinovirus (PCR)": color_list[19], "Panparainfluenza": color_list[18], "SARS-CoV-2 (Filmarray)": color_list[3], "Rhinovirus": color_list[16], "Virus Respiratorio Sincicial (PCR)": color_list[13]}    
     
     # DataFrame Interactivo 2: Cantidad de determinaciones realizadas por estudio
-    st.subheader("Total de determinaciones realizadas por estudio (Pediátricos y Adultos acompañantes)")
+    st.subheader("Total de determinaciones realizadas por estudio")
+    st.caption("📌 El siguiente DataFrame es interactivo, lo que significa que usted puede filtrar las columnas como una planilla de Excel y seleccionar las filas que le interese visualizar en un gráfico de barras (barplot). Los datos utilizados para su construcción contemplan el total de pacientes estudiados, tanto pediátricos como adultos acompañantes. Igualmente que los gráficos anteriores, se puede descargar haciendo click en el ícono 📷 ('Download plot as png'). Además, puede seleccionar las barras que desea ver haciendo click en cada referencia al margen del gráfico.", unsafe_allow_html=False)
     determinaciones_por_estudio = dataframe.groupby(["DET_CODIGO_1"]).size().to_frame()
     determinaciones_por_estudio.rename(columns={0: "DETERMINACIONES REALIZADAS"}, inplace=True)
     determinaciones_por_estudio.reset_index(inplace=True)
@@ -375,7 +384,7 @@ if files:
         gridOptions=gridOptions,
         data_return_mode='AS_INPUT', 
         update_mode='MODEL_CHANGED', 
-        fit_columns_on_grid_load=False,
+        fit_columns_on_grid_load=True,
         theme='alpine', #Add theme color to the table
         enable_enterprise_modules=True,
         height=600, 
@@ -387,18 +396,6 @@ if files:
     selected1 = grid_response['selected_rows'] 
     df1 = pd.DataFrame(selected1) #Pass the selected rows to a new dataframe df
     
-    # Barplot: Cantidad de determinaciones realizadas por estudio (pediátricos y adultos)
-    # st.subheader("Total de determinaciones vs Estudio (Pediátricos y Adultos acompañantes)")
-    # fig = px.bar(determinaciones_por_estudio, y='DETERMINACIONES REALIZADAS', x='VIRUS (MÉTODO)', text='DETERMINACIONES REALIZADAS')
-    # fig.update_traces(texttemplate='%{text:.2s}', textposition='outside')
-    # fig.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')
-    # st.plotly_chart(fig)
-    
-    color_list = ['#636efa', '#EF553B', '#00cc96', '#ab63fa', '#FFA15A', '#19d3f3', '#FF6692', '#B6E880', '#FF97FF', '#FECB52', '#FF6E8D', '#9BBC6B', '#FFD54F', '#A0836C', '#F29B76', '#8390FA', '#9CBAA9', '#D1B993', '#B2B2B2', '#EEDD82', '#CCCCCC']
-
-    color_dictionary = {"Adenovirus (PCR)": color_list[0], "Enterovirus (PCR)": color_list[1], "Adenovirus (Determinación y/o carga)": color_list[0] ,"Pancoronavirus (PCR)": color_list[2], "SARS-CoV-2 (PCR)": color_list[3], "Coronavirus 299E (Filmarray)": color_list[4], "Coronavirus HKU1 (Filmarray)": color_list[5], "Coronavirus NL63 (Filmarray)": color_list[6], "Coronavirus OC43 (Filmarray)": color_list[7], "Rhinovirus/Enterovirus (Filmarray)": color_list[8], "Parainfluenza 1 (Filmarray)": color_list[9], "Parainfluenza 2 (Filmarray)": color_list[10], "Parainfluenza 3 (Filmarray)": color_list[11], "Parainfluenza 4 (Filmarray)": color_list[12], "Virus Respiratorio Sincicial (Filmarray)": color_list[13], "Influenza A y B (PCR)": color_list[14], "Metapneumovirus y Rhinovirus (PCR)": color_list[19], "Panparainfluenza": color_list[18], "SARS-CoV-2 (Filmarray)": color_list[3], "Rhinovirus": color_list[16], "Virus Respiratorio Sincicial (PCR)": color_list[13]}
-    
-    st.subheader("Visualice la cantidad de determinaciones realizadas por estudio a partir del DataFrame Interactivo (Pediátricos y Adultos acompañantes):")
     if selected1:
         fig = px.bar(df1, x='VIRUS (MÉTODO)', y='DETERMINACIONES REALIZADAS', color="VIRUS (MÉTODO)", color_discrete_map=color_dictionary, title="DETERMINACIONES REALIZADAS")
         fig.update_traces(texttemplate='%{text:.2s}', textposition='outside')
@@ -407,12 +404,39 @@ if files:
     else:
         st.write("Seleccione las filas de la tabla que desee graficar.")
     
-    
+
+        
     # Tabla: Pediátricos Positivos
-    lista_positivos = ["Adenovirus", "Enterovirus", "Pancoronavirus", "SARS-CoV-2", "Coronavirus 299E", "Coronavirus HKU1", "Coronavirus NL63", "Coronavirus OC43", "Rhinovirus/Enterovirus",  "Parainfluenza 1", "Parainfluenza 2", "Parainfluenza 3", "Parainfluenza 4", "VSR", "Influenza A", "Influenza B", "Rhinovirus", "Metapneumovirus", "Panparainfluenza", "Metapneumovirus y Rhinovirus"]
-    positivos = solo_ped[solo_ped["RESULTADO"].isin(lista_positivos)]
     st.subheader("Pacientes Pediátricos con Infección Viral Respiratoria (Positivos)")
-    st.dataframe(positivos)
+    st.caption("📌 ", unsafe_allow_html=False)
+    lista_positivos = ["Adenovirus", "Enterovirus", "Pancoronavirus", "SARS-CoV-2", "Coronavirus 299E", "Coronavirus HKU1", "Coronavirus NL63", "Coronavirus OC43", "Rhinovirus/Enterovirus",  "Parainfluenza 1", "Parainfluenza 2", "Parainfluenza 3", "Parainfluenza 4", "VSR", "Influenza A", "Influenza B", "Rhinovirus", "Metapneumovirus", "Panparainfluenza", "Metapneumovirus y Rhinovirus"]
+    positivos = solo_ped[solo_ped["RESULTADO"].isin(lista_positivos)]    
+    
+    gb = GridOptionsBuilder.from_dataframe(positivos)
+    gb.configure_pagination(paginationAutoPageSize=True) #Add pagination
+    gb.configure_side_bar() #Add a sidebar
+    # gb.configure_selection('multiple', use_checkbox=True, groupSelectsChildren="Group checkbox select children") #Enable multi-row selection
+    gridOptions = gb.build()
+    
+    grid_response = AgGrid(
+        positivos,
+        gridOptions=gridOptions,
+        data_return_mode='AS_INPUT', 
+        update_mode='MODEL_CHANGED', 
+        fit_columns_on_grid_load=True,
+        theme='alpine', #Add theme color to the table
+        enable_enterprise_modules=True,
+        height=600, 
+        width='40%',
+        reload_data=True
+    )
+    
+    data2 = grid_response['data']
+    # selected2 = grid_response['selected_rows'] 
+    # df2 = pd.DataFrame(selected2) #Pass the selected rows to a new dataframe df
+
+    # Agregar botón de descarga para el dataframe de positivos.
+    
     
     # Barplot: Número de determinaciones positivas (filtrar columna RESULTADO y quedarme con todo lo que no sea No detectable). Sólo PEDIÁTRICOS
     st.subheader("Estudio vs Determinaciones: Pacientes Pediátricos.")
@@ -530,9 +554,10 @@ if files:
     st.plotly_chart(fig)
     
     
-    # Prueba barplot a partir de DataFrame interactivo
+    # Barplot a partir de DataFrame interactivo
     st.subheader("Personalizá el barplot a partir del DataFrame Interactivo:")
     if selected:
+        
         fig = px.bar(df, x="Semana Epidemiológica", y="Porcentaje", color="Resultado", color_discrete_map=color_dict, title="Porcentaje de Positividad por Semana Epidemiológica")
         fig.update_layout(xaxis=dict(tickmode="linear", tick0=1, dtick=1))
         st.plotly_chart(fig)
