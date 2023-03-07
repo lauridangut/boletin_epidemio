@@ -48,7 +48,7 @@ def colored_header(
 
 
 titulo = "¡Bienvenidos!"
-descripcion = "Esta es una aplicación que tiene como objetivo proporcionar una herramienta para analizar datos epidemiológicos sobre infecciones respiratorias producidas por virus. La misma es una interfaz de usuario interactiva que permite a los usuarios cargar y visualizar datos, así como aplicar técnicas de análisis de datos para obtener información relevante sobre la propagación de las enfermedades respiratorias y su impacto en la salud pública pediátrica."
+descripcion = "Esta aplicación es una herramienta diseñada para analizar datos epidemiológicos sobre Infecciones Respiratorias Agudas Virales. Su interfaz interactiva permite a los usuarios cargar y visualizar datos de manera fácil y rápida. Utilizando técnicas de análisis de datos avanzadas, la aplicación transforma esta información en conocimientos valiosos sobre la propagación de las enfermedades respiratorias y su impacto en la salud pública pediátrica. Los usuarios pueden interactuar con la aplicación para explorar diferentes conjuntos de datos, comparar estadísticas y visualizar gráficos. Además, estas herramientas de visualización permiten a los usuarios identificar patrones y tendencias en los datos. Con esta información, los profesionales de la salud y los investigadores pueden tomar decisiones informadas en lo concerniente a las Infecciones Respiratorias Agudas Virales en pos de la salud pública pediátrica."
 colored_header(
     label=titulo,
     description=descripcion,

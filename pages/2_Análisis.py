@@ -288,7 +288,7 @@ if files:
 
     # Hacer un chart container para DataFrame sólo pacientes pediátricos y Características de la Población Pediátrica estudiada    
     st.subheader("Características de la Población Pediátrica estudiada")
-    st.caption("📌 A continuación se grafica un boxplot para representar la mediana y los rangos de edad de la población pediátrica estudiada, según sexo. Para descargar la imagen, haga click en el ícono 📷 ('Download plot as png'). Además, puede posar el mouse sobre el gráfico para visualizar información adicional. Obsérvese, también, que se crea una pestaña para el gráfico, otra para el DataFrame que contiene los datos únicamente de los pacientes pediátricos y que le da origen al boxplot y, por último, otra pestaña para descargarlo en formato CSV.", unsafe_allow_html=False)
+    st.caption("📌 A continuación se grafica un gráfico de cajas (boxplot) para representar la mediana y los rangos de edad de la población pediátrica estudiada, según sexo. Para descargar la imagen, haga click en el ícono 📷 ('Download plot as png'). Además, puede posar el mouse sobre el gráfico para visualizar información adicional. Obsérvese, también, que se crea una pestaña para el gráfico, otra para el DataFrame que contiene los datos únicamente de los pacientes pediátricos y que le da origen al boxplot y, por último, otra pestaña para descargarlo en formato CSV.", unsafe_allow_html=False)
     # Dataframe SOLO PEDIATRICOS
     # st.subheader("DataFrame sólo pacientes pediátricos")
     excluir_adultos = ["Adulto"]
@@ -346,7 +346,7 @@ if files:
     
     # DataFrame Interactivo 2: Cantidad de determinaciones realizadas por estudio
     st.subheader("Total de determinaciones realizadas por estudio")
-    st.caption("📌 El siguiente DataFrame es interactivo, lo que significa que usted puede filtrar las columnas como una planilla de Excel y seleccionar las filas que le interese visualizar en un gráfico de barras (barplot). Los datos utilizados para su construcción contemplan el total de pacientes estudiados, tanto pediátricos como adultos acompañantes. Igualmente que los gráficos anteriores, se puede descargar haciendo click en el ícono 📷 ('Download plot as png'). Además, puede seleccionar las barras que desea ver haciendo click en cada referencia al margen del gráfico.", unsafe_allow_html=False)
+    st.caption("📌 El siguiente DataFrame es interactivo, lo que significa que usted puede filtrar las columnas como una planilla de Excel y **seleccionar las filas que le interese visualizar en un gráfico de barras (barplot)**. Los datos utilizados para su construcción contemplan el total de pacientes estudiados, tanto pediátricos como adultos acompañantes. Igualmente que los gráficos anteriores, se puede descargar haciendo click en el ícono 📷 ('Download plot as png'). Además, puede seleccionar las barras que desea ver haciendo click en cada referencia al margen del gráfico.", unsafe_allow_html=False)
     determinaciones_por_estudio = dataframe.groupby(["DET_CODIGO_1"]).size().to_frame()
     determinaciones_por_estudio.rename(columns={0: "DETERMINACIONES REALIZADAS"}, inplace=True)
     determinaciones_por_estudio.reset_index(inplace=True)
@@ -401,43 +401,39 @@ if files:
         fig.update_traces(texttemplate='%{text:.2s}', textposition='outside')
         fig.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')
         st.plotly_chart(fig)
-    else:
-        st.write("Seleccione las filas de la tabla que desee graficar.")
+    # else:
+    #     st.write("Seleccione las filas de la tabla que desee graficar.")
     
 
         
     # Tabla: Pediátricos Positivos
-    st.subheader("Pacientes Pediátricos con Infección Viral Respiratoria (Positivos)")
-    st.caption("📌 ", unsafe_allow_html=False)
+    st.subheader("Pacientes Pediátricos con Infección Viral Respiratoria")
+    st.caption("📌 En el DataFrame que se muestra a continuación se encuentran los datos de aquellos pacientes que resultaron positivos para al menos uno de los estudios de infección respiratoria. Utilice la barra lateral del mismo para realizar filtrados de las columnas y obtener una visualización óptima.", unsafe_allow_html=False)
     lista_positivos = ["Adenovirus", "Enterovirus", "Pancoronavirus", "SARS-CoV-2", "Coronavirus 299E", "Coronavirus HKU1", "Coronavirus NL63", "Coronavirus OC43", "Rhinovirus/Enterovirus",  "Parainfluenza 1", "Parainfluenza 2", "Parainfluenza 3", "Parainfluenza 4", "VSR", "Influenza A", "Influenza B", "Rhinovirus", "Metapneumovirus", "Panparainfluenza", "Metapneumovirus y Rhinovirus"]
-    positivos = solo_ped[solo_ped["RESULTADO"].isin(lista_positivos)]    
-    
+    positivos = solo_ped[solo_ped["RESULTADO"].isin(lista_positivos)]
+
     gb = GridOptionsBuilder.from_dataframe(positivos)
     gb.configure_pagination(paginationAutoPageSize=True) #Add pagination
     gb.configure_side_bar() #Add a sidebar
-    # gb.configure_selection('multiple', use_checkbox=True, groupSelectsChildren="Group checkbox select children") #Enable multi-row selection
     gridOptions = gb.build()
     
-    grid_response = AgGrid(
-        positivos,
-        gridOptions=gridOptions,
-        data_return_mode='AS_INPUT', 
-        update_mode='MODEL_CHANGED', 
-        fit_columns_on_grid_load=True,
-        theme='alpine', #Add theme color to the table
-        enable_enterprise_modules=True,
-        height=600, 
-        width='40%',
-        reload_data=True
+    # Mostrar la tabla AgGrid
+    data_return_mode = 'AS_INPUT'
+    download_filename = "my_data.csv"
+    download_button = "Descargar Positivos"
+    grid_id = "my_grid"
+    AgGrid(positivos, gridOptions=gridOptions, grid_id=grid_id, height=600, theme='alpine')
+    
+    # Crear un botón de descarga
+    csv = positivos.to_csv(index=False).encode()
+    st.download_button(
+        label=download_button,
+        data=csv,
+        file_name=download_filename,
+        mime="text/csv",
     )
     
-    data2 = grid_response['data']
-    # selected2 = grid_response['selected_rows'] 
-    # df2 = pd.DataFrame(selected2) #Pass the selected rows to a new dataframe df
 
-    # Agregar botón de descarga para el dataframe de positivos.
-    
-    
     # Barplot: Número de determinaciones positivas (filtrar columna RESULTADO y quedarme con todo lo que no sea No detectable). Sólo PEDIÁTRICOS
     st.subheader("Estudio vs Determinaciones: Pacientes Pediátricos.")
     import plotly.graph_objects as go

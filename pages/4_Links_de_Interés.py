@@ -75,6 +75,10 @@ st.write(link, unsafe_allow_html=True)
 link = '<a href="https://www.aam.org.ar/">Asociación Argentina de Microbiología</a>'
 st.write(link, unsafe_allow_html=True)
 
+# ViralZone
+link = '<a href="https://viralzone.expasy.org/">Viral Zone</a>'
+st.write(link, unsafe_allow_html=True)
+
 # Web Pubmed
 link = '<a href="https://pubmed.ncbi.nlm.nih.gov/">PubMed</a>'
 st.write(link, unsafe_allow_html=True)
