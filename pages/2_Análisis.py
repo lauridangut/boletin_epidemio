@@ -196,7 +196,7 @@ if files:
     dataset = convert_df(dataset)
     
     st.download_button(
-        label="Descargar archivo procesado",
+        label="Descargar tabla",
         data=dataset,
         file_name='archivo_procesado.csv',
         mime='text/csv',
@@ -288,7 +288,7 @@ if files:
 
     # Hacer un chart container para DataFrame sólo pacientes pediátricos y Características de la Población Pediátrica estudiada    
     st.subheader("Características de la Población Pediátrica estudiada")
-    st.caption("📌 A continuación se grafica un gráfico de cajas (boxplot) para representar la mediana y los rangos de edad de la población pediátrica estudiada, según sexo. Para descargar la imagen, haga click en el ícono 📷 ('Download plot as png'). Además, puede posar el mouse sobre el gráfico para visualizar información adicional. Obsérvese, también, que se crea una pestaña para el gráfico, otra para el DataFrame que contiene los datos únicamente de los pacientes pediátricos y que le da origen al boxplot y, por último, otra pestaña para descargarlo en formato CSV.", unsafe_allow_html=False)
+    st.caption("📌 A continuación se visualiza un gráfico de cajas (boxplot) para representar la mediana y los rangos de edad de la población pediátrica estudiada, según sexo. Para descargar la imagen, haga click en el ícono 📷 ('Download plot as png'). Además, puede posar el mouse sobre el gráfico para visualizar información adicional. Obsérvese, también, que se crea una pestaña para el gráfico, otra para el DataFrame que contiene los datos únicamente de los pacientes pediátricos y que le da origen al boxplot y, por último, otra pestaña para descargarlo en formato CSV.", unsafe_allow_html=False)
     # Dataframe SOLO PEDIATRICOS
     # st.subheader("DataFrame sólo pacientes pediátricos")
     excluir_adultos = ["Adulto"]
@@ -331,7 +331,7 @@ if files:
             st.dataframe(data)
         
         with tabs[2]:
-            st.download_button('Descargar CSV', data=export_csv(data), file_name='pediatricos.csv', mime='text/csv')
+            st.download_button('Descargar tabla', data=export_csv(data), file_name='pediatricos.csv', mime='text/csv')
     
     
     if __name__ == '__main__':
@@ -419,8 +419,8 @@ if files:
     
     # Mostrar la tabla AgGrid
     data_return_mode = 'AS_INPUT'
-    download_filename = "my_data.csv"
-    download_button = "Descargar Positivos"
+    download_filename = "pediatricos_positivos.csv"
+    download_button = "Descargar tabla"
     grid_id = "my_grid"
     AgGrid(positivos, gridOptions=gridOptions, grid_id=grid_id, height=600, theme='alpine')
     
@@ -435,7 +435,8 @@ if files:
     
 
     # Barplot: Número de determinaciones positivas (filtrar columna RESULTADO y quedarme con todo lo que no sea No detectable). Sólo PEDIÁTRICOS
-    st.subheader("Estudio vs Determinaciones: Pacientes Pediátricos.")
+    st.subheader("Comparación entre la cantidad de positivos y el total de determinaciones por estudio en pacientes pediátricos")
+    st.caption("📌 El siguiente barplot contrasta la cantidad total de determinaciones con las positivas para cada estudio. Recuerde que puede posar el mouse sobre la figura para obtener información adicional, así como también, seleccionar las barras que se desea visualizar haciendo click en la referencia del margen. Además, puede acceder al modo fullscreen para agrandar la imagen.", unsafe_allow_html=False)
     import plotly.graph_objects as go
     value_counts = positivos['ESTUDIO'].value_counts()
     estudio = value_counts.index
@@ -450,14 +451,14 @@ if files:
         x=estudio,
         y=counts,
         name='Positivos',
-        marker_color='indianred'
+        marker_color="mediumorchid"
     ))
     
     fig.add_trace(go.Bar(
         x=estudio_totales,
         y=counts_totales,
         name='Total de determinaciones',
-        marker_color='lightsalmon'
+        marker_color="rebeccapurple"
     ))
     fig.update_layout(barmode='group', xaxis_tickangle=90)
     st.plotly_chart(fig, height=1200, width=1600)
@@ -471,6 +472,7 @@ if files:
     
     # Piechart: Distribución de virus respiratorios en muestras positivas. Sólo PEDIÁTRICOS.
     st.subheader("Distribución de virus respiratorios en el total de muestras positivas de pacientes pediátricos")
+    st.caption("📌 A continuación se muestra un gráfico de torta, en el cual representa la distribución de los virus respiratorios encontrados entre el total de muestras positivas analizadas, tanto por PCR como por Filmarray. La finalidad es proporcionar una visión general de los agentes etiológicos responsables de la mayoría de las infecciones virales respiratorias. En otras palabras, se busca identificar los virus que causan la mayor cantidad de casos positivos en el conjunto de muestras analizadas, lo que puede ser útil para entender la epidemiología y la dinámica de las infecciones respiratorias en la población pediátrica que concurre al hospital.", unsafe_allow_html=False)
     pos_torta = positivos["RESULTADO"].value_counts().to_frame().reset_index()
     pos_torta.rename(columns={"index":"Virus", "RESULTADO": "Cantidad de casos"}, inplace=True)
     # st.dataframe(pos_torta)
@@ -494,7 +496,7 @@ if files:
             st.dataframe(data)
         
         with tabs[2]:
-            st.download_button('Descargar CSV', data=export_csv(data), file_name='data.csv', mime='text/csv')
+            st.download_button('Descargar tabla', data=export_csv(data), file_name='data.csv', mime='text/csv')
     
     
     if __name__ == '__main__':
@@ -504,7 +506,8 @@ if files:
         
 
     # Tabla para graficar Semana epidemiológica vs porcentaje de positividad de cada virus
-    st.subheader("Dataframe Interactivo para graficar Semana epidemiológica vs porcentaje de positividad: pacientes pediátricos")
+    st.subheader("Distribución de Virus Respiratorios en función de la Semana Epidemiológica")
+    st.caption("📌 El siguiente DataFrame contiene información del conteo de las determinaciones realizadas, del resultado de todos pacientes pediátricos estudiados y de la semana epidemiológica en la que fue tomada cada muestra. Se calcula para cada estudio, el porcentaje de positividad para cada uno de los virus. Esta tabla cuenta con una barra lateral con opciones para seleccionar columnas y filtrar datos. Además, seleccionando las filas de interés, se puede graficar un barplot donde el eje horizontal representa la Semana Epidemiológica y el eje vertical el Porcentaje de Positividad. Como siempre, cuenta con la opción de obtener información pasando el mouse por encima de la figura y filtrar la imagen clickeando sobre las referencias del margen.", unsafe_allow_html=False)
     adeno_desagrup = solo_ped.copy()
     adeno_desagrup['ESTUDIO'].replace(['ADENOVIRUS POR PCR', 'ADV: DETERMINACIÓN Y/O CARGA'], 'ADENOVIRUS', inplace=True)
     temp_df = adeno_desagrup.groupby(["ESTUDIO", "SEMANA_EPI", "RESULTADO"]).count().reset_index()
@@ -515,6 +518,30 @@ if files:
     temp_df = pd.merge(temp_df, temp_df_sum, on=["ESTUDIO", "SEMANA_EPI"], how="left")
     temp_df.rename(columns={"Cantidad_x": "Cantidad", "Cantidad_y": "Total Estudiados", "SEMANA_EPI": "Semana Epidemiológica", "ESTUDIO": "Estudio", "RESULTADO": "Resultado"}, inplace=True)
     temp_df["Porcentaje"] = round(temp_df["Cantidad"]/temp_df["Total Estudiados"]*100, 1)
+
+
+    # gb = GridOptionsBuilder.from_dataframe(temp_df)
+    # gb.configure_pagination(paginationAutoPageSize=True) #Add pagination
+    # gb.configure_side_bar() #Add a sidebar
+    # gb.configure_selection('multiple', use_checkbox=True, groupSelectsChildren="Group checkbox select children") #Enable multi-row selection
+    # gridOptions = gb.build()
+    
+    # # Mostrar la tabla AgGrid
+    # data_return_mode = 'AS_INPUT'
+    # download_filename = "distribucion_por_se.csv"
+    # download_button = "Descargar tabla"
+    # grid_id = "my_grid"
+    # AgGrid(temp_df, gridOptions=gridOptions, grid_id=grid_id, height=600, theme='alpine')
+    
+    # # Crear un botón de descarga
+    # csv2 = temp_df.to_csv(index=False).encode()
+    # st.download_button(
+    #     label=download_button,
+    #     data=csv2,
+    #     file_name=download_filename,
+    #     mime="text/csv",
+    # )
+
 
 
     # DataFrame Interactivo 2
@@ -542,26 +569,28 @@ if files:
     df = pd.DataFrame(selected) #Pass the selected rows to a new dataframe df
 
     # Barplot Semana epidemiológica vs porcentaje de positividad de cada virus
-    st.subheader("Semana epidemiológica vs porcentaje de positividad: pacientes pediátricos")
-    filtro_nodetectables = temp_df[temp_df["Resultado"] != "No detectable"]
-    filtro_nodetectables.rename(columns={"Porcentaje":"Porcentaje de Positividad"}, inplace=True)
-    fig = px.bar(filtro_nodetectables, x="Semana Epidemiológica", y="Porcentaje de Positividad", color= "Resultado", color_discrete_map=color_dict, title="Porcentaje de Positividad por Semana Epidemiológica")
-    fig.update_layout(xaxis=dict(tickmode="linear", tick0=1, dtick=1))
-    st.plotly_chart(fig)
+    # st.subheader("Semana epidemiológica vs porcentaje de positividad: pacientes pediátricos")
+    # filtro_nodetectables = temp_df[temp_df["Resultado"] != "No detectable"]
+    # filtro_nodetectables.rename(columns={"Porcentaje":"Porcentaje de Positividad"}, inplace=True)
+    # fig = px.bar(filtro_nodetectables, x="Semana Epidemiológica", y="Porcentaje de Positividad", color= "Resultado", color_discrete_map=color_dict, title="Porcentaje de Positividad por Semana Epidemiológica")
+    # fig.update_layout(xaxis=dict(tickmode="linear", tick0=1, dtick=1))
+    # st.plotly_chart(fig)
     
     
     # Barplot a partir de DataFrame interactivo
-    st.subheader("Personalizá el barplot a partir del DataFrame Interactivo:")
+    # st.subheader("Personalizá el barplot a partir del DataFrame Interactivo:")
     if selected:
         
         fig = px.bar(df, x="Semana Epidemiológica", y="Porcentaje", color="Resultado", color_discrete_map=color_dict, title="Porcentaje de Positividad por Semana Epidemiológica")
         fig.update_layout(xaxis=dict(tickmode="linear", tick0=1, dtick=1))
         st.plotly_chart(fig)
-    else:
-        st.write("Seleccioná las filas de la tabla anterior presionando la tecla Shift del teclado y, simultáneamente, hacé click en el DataFrame interactivo para visualizar el Porcentaje de Positividad según la Semana Epidemiológica. No olvides filtrar 'No detectable' de la columna Resultado.")
+    # else:
+    #     st.write("Seleccioná las filas de la tabla anterior presionando la tecla Shift del teclado y, simultáneamente, hacé click en el DataFrame interactivo para visualizar el Porcentaje de Positividad según la Semana Epidemiológica. No olvides filtrar 'No detectable' de la columna Resultado.")
 
-    
-    
+
+
+    # Explicar un poco más el barplot y los análisis que se pueden hacer a partir de él (seleccionando al margen de la imagen y viendo virus por virus como van variando conforme van pasando las semanas epidemiológicas)
+    # Agregar boton de descarga al dataframe interactivo 
     # Agregar calendario epidemiológico?
     
     # Agregar análisis estadísticos: analizar si hay diferencias significativas en la misma semana entre los diferentes virus y además analizar si hay diferencias significativas entre semanas epidemiológicas siguiendo un mismo virus (estacionalidad de los virus respiratorios)
