@@ -507,7 +507,7 @@ if files:
 
     # Tabla para graficar Semana epidemiológica vs porcentaje de positividad de cada virus
     st.subheader("Distribución de Virus Respiratorios en función de la Semana Epidemiológica")
-    st.caption("📌 El siguiente DataFrame contiene información del conteo de las determinaciones realizadas, del resultado de todos pacientes pediátricos estudiados y de la semana epidemiológica en la que fue tomada cada muestra. Se calcula para cada estudio, el porcentaje de positividad para cada uno de los virus. Esta tabla cuenta con una barra lateral con opciones para seleccionar columnas y filtrar datos. Además, seleccionando las filas de interés, se puede graficar un barplot donde el eje horizontal representa la Semana Epidemiológica y el eje vertical el Porcentaje de Positividad. Como siempre, cuenta con la opción de obtener información pasando el mouse por encima de la figura y filtrar la imagen clickeando sobre las referencias del margen.", unsafe_allow_html=False)
+    st.caption("📌 El siguiente DataFrame proporciona información sobre el recuento de las determinaciones realizadas y los resultados de los pacientes pediátricos estudiados, así como la semana epidemiológica en la que se tomaron las muestras. A partir de esta información, se calcula el porcentaje de positividad para cada uno de los virus. Esta tabla cuenta con una barra lateral con opciones para seleccionar columnas y filtrar datos. Además, seleccionando las filas de interés, se puede generar un gráfico de barras donde el eje horizontal representa la Semana Epidemiológica y el eje vertical el Porcentaje de Positividad. Los datos se presentan de forma interactiva, permitiendo a los usuarios obtener información adicional pasando el cursor sobre la figura y filtrando la imagen haciendo clic en las referencias del margen. Podría ser valioso, por ejemplo, visualizar individualmente algún virus en particular utilizando esta herramienta y evaluar cómo va variando el número de casos semana a semana.", unsafe_allow_html=False)
     adeno_desagrup = solo_ped.copy()
     adeno_desagrup['ESTUDIO'].replace(['ADENOVIRUS POR PCR', 'ADV: DETERMINACIÓN Y/O CARGA'], 'ADENOVIRUS', inplace=True)
     temp_df = adeno_desagrup.groupby(["ESTUDIO", "SEMANA_EPI", "RESULTADO"]).count().reset_index()
@@ -520,30 +520,6 @@ if files:
     temp_df["Porcentaje"] = round(temp_df["Cantidad"]/temp_df["Total Estudiados"]*100, 1)
 
 
-    # gb = GridOptionsBuilder.from_dataframe(temp_df)
-    # gb.configure_pagination(paginationAutoPageSize=True) #Add pagination
-    # gb.configure_side_bar() #Add a sidebar
-    # gb.configure_selection('multiple', use_checkbox=True, groupSelectsChildren="Group checkbox select children") #Enable multi-row selection
-    # gridOptions = gb.build()
-    
-    # # Mostrar la tabla AgGrid
-    # data_return_mode = 'AS_INPUT'
-    # download_filename = "distribucion_por_se.csv"
-    # download_button = "Descargar tabla"
-    # grid_id = "my_grid"
-    # AgGrid(temp_df, gridOptions=gridOptions, grid_id=grid_id, height=600, theme='alpine')
-    
-    # # Crear un botón de descarga
-    # csv2 = temp_df.to_csv(index=False).encode()
-    # st.download_button(
-    #     label=download_button,
-    #     data=csv2,
-    #     file_name=download_filename,
-    #     mime="text/csv",
-    # )
-
-
-
     # DataFrame Interactivo 2
     gb = GridOptionsBuilder.from_dataframe(temp_df)
     gb.configure_pagination(paginationAutoPageSize=True) #Add pagination
@@ -554,7 +530,9 @@ if files:
     grid_response = AgGrid(
         temp_df,
         gridOptions=gridOptions,
-        data_return_mode='AS_INPUT', 
+        data_return_mode='AS_INPUT',
+        download_filename = "distribucion_por_se.csv",
+        download_button = "Descargar tabla",
         update_mode='MODEL_CHANGED', 
         fit_columns_on_grid_load=False,
         theme='alpine', #Add theme color to the table
@@ -564,21 +542,19 @@ if files:
         reload_data=True
     )
     
+    # Crear un botón de descarga
+    csv2 = temp_df.to_csv(index=False).encode()
+    st.download_button(
+        label=download_button,
+        data=csv2,
+        file_name="distribucion_por_se.csv",
+        mime="text/csv",
+    )
+    
     data = grid_response['data']
     selected = grid_response['selected_rows'] 
     df = pd.DataFrame(selected) #Pass the selected rows to a new dataframe df
 
-    # Barplot Semana epidemiológica vs porcentaje de positividad de cada virus
-    # st.subheader("Semana epidemiológica vs porcentaje de positividad: pacientes pediátricos")
-    # filtro_nodetectables = temp_df[temp_df["Resultado"] != "No detectable"]
-    # filtro_nodetectables.rename(columns={"Porcentaje":"Porcentaje de Positividad"}, inplace=True)
-    # fig = px.bar(filtro_nodetectables, x="Semana Epidemiológica", y="Porcentaje de Positividad", color= "Resultado", color_discrete_map=color_dict, title="Porcentaje de Positividad por Semana Epidemiológica")
-    # fig.update_layout(xaxis=dict(tickmode="linear", tick0=1, dtick=1))
-    # st.plotly_chart(fig)
-    
-    
-    # Barplot a partir de DataFrame interactivo
-    # st.subheader("Personalizá el barplot a partir del DataFrame Interactivo:")
     if selected:
         
         fig = px.bar(df, x="Semana Epidemiológica", y="Porcentaje", color="Resultado", color_discrete_map=color_dict, title="Porcentaje de Positividad por Semana Epidemiológica")
@@ -587,13 +563,11 @@ if files:
     # else:
     #     st.write("Seleccioná las filas de la tabla anterior presionando la tecla Shift del teclado y, simultáneamente, hacé click en el DataFrame interactivo para visualizar el Porcentaje de Positividad según la Semana Epidemiológica. No olvides filtrar 'No detectable' de la columna Resultado.")
 
-
-
-    # Explicar un poco más el barplot y los análisis que se pueden hacer a partir de él (seleccionando al margen de la imagen y viendo virus por virus como van variando conforme van pasando las semanas epidemiológicas)
-    # Agregar boton de descarga al dataframe interactivo 
-    # Agregar calendario epidemiológico?
     
     # Agregar análisis estadísticos: analizar si hay diferencias significativas en la misma semana entre los diferentes virus y además analizar si hay diferencias significativas entre semanas epidemiológicas siguiendo un mismo virus (estacionalidad de los virus respiratorios)
+    
+    
+    
     
     # Positivos por edad. Generar una tabla de positivos en la que las filas sean las categorías de edad y las columnas todos los virus.
     # Filled area plot circulación de virus respiratorios por edad

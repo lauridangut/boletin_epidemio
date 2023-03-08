@@ -82,3 +82,11 @@ st.write(link, unsafe_allow_html=True)
 # Web Pubmed
 link = '<a href="https://pubmed.ncbi.nlm.nih.gov/">PubMed</a>'
 st.write(link, unsafe_allow_html=True)
+
+# Calendario Epidemiológico 2022
+link = '<a href="https://bancos.salud.gob.ar/recurso/calendario-epidemiologico-2022">Calendario Epidemiológico 2022</a>'
+st.write(link, unsafe_allow_html=True)
+
+# Calendario Epidemiológico 2023
+link = '<a href="https://bancos.salud.gob.ar/recurso/calendario-epidemiologico-2023">Calendario Epidemiológico 2023</a>'
+st.write(link, unsafe_allow_html=True)
