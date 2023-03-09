@@ -249,7 +249,7 @@ if files:
     pac_est_sexo_edad = pac_est_sexo_edad.pivot(index="CAT_EDAD", columns="SEXO", values="CANT")
     pac_est_sexo_edad.reset_index(inplace=True)
     edad_dict = {"1": "< 6 meses", "2": "6 a 12 meses", "3": "13 a 23 meses", "4": "2 a 4 años",
-                 "5": "5 a 9 años", "6": "10 a 14 años", "7": "15 a 19 años", "8": "Adulto"}
+                 "5": "> 4 a 9 años", "6": "> 9 a 14 años", "7": "> 14 a 19 años", "8": "Adulto"}
     pac_est_sexo_edad["EDAD"] = pac_est_sexo_edad["CAT_EDAD"].replace(edad_dict)
 
     # Gráfico población estudiada (sexo y edad)
@@ -564,254 +564,89 @@ if files:
     #     st.write("Seleccioná las filas de la tabla anterior presionando la tecla Shift del teclado y, simultáneamente, hacé click en el DataFrame interactivo para visualizar el Porcentaje de Positividad según la Semana Epidemiológica. No olvides filtrar 'No detectable' de la columna Resultado.")
 
     
-    # Agregar análisis estadísticos: analizar si hay diferencias significativas en la misma semana entre los diferentes virus y además analizar si hay diferencias significativas entre semanas epidemiológicas siguiendo un mismo virus (estacionalidad de los virus respiratorios)
+    # Positivos por edad. Generar una tabla de positivos en la que las filas sean las categorías de edad y las columnas todos los virus.Filled area plot circulación de virus respiratorios por edad
+    st.subheader("Distribución porcentual de los Virus Respiratorios por Categoría de Edad")
+    st.caption("📌 En el siguiente gráfico de área se muestran los virus .", unsafe_allow_html=False)
+    import plotly.graph_objects as go
     
-    
-    
-    
-    # Positivos por edad. Generar una tabla de positivos en la que las filas sean las categorías de edad y las columnas todos los virus.
-    # Filled area plot circulación de virus respiratorios por edad
-    #pio.renderers.default='svg'
-    # import plotly.graph_objects as go
+    def chart_container() -> None:
 
-    # x = tabla_plot["Categoria de Edad"]
-    # fig = go.Figure()
+        # Agrupar por categoría de edad y resultado y contar el número de pacientes
+        solo_ped_positivos = solo_ped.loc[solo_ped['RESULTADO'] != 'No detectable']
+        total_cat = solo_ped_positivos.groupby(['CAT_EDAD', 'RESULTADO']).size().reset_index(name='CANTIDAD')  
+        # Calcular el total de pacientes por categoría de edad
+        total_pacientes = total_cat.groupby(['CAT_EDAD'])['CANTIDAD'].transform('sum')    
+        # Calcular el porcentaje de cada virus por categoría de edad
+        total_cat['PORCENTAJE'] = 100 * total_cat['CANTIDAD'] / total_pacientes
+        total_cat['PORCENTAJE'] = round(total_cat['PORCENTAJE'], 2)
+        # Ordenar los resultados por categoría de edad y virus
+        total_cat = total_cat.sort_values(['CAT_EDAD', 'RESULTADO'])
+        total_cat_pivot = total_cat.pivot(index='CAT_EDAD', columns='RESULTADO', values='PORCENTAJE').fillna(0)
+        # st.write(total_cat_pivot)
+ 
+        # Seleccionar las columnas a quitar del gráfico
+        selected_columns = st.multiselect(
+            "Seleccione las columnas que desea quitar del gráfico de área:",
+            total_cat_pivot.columns.tolist(),
+            default=total_cat_pivot.columns.tolist(),
+        )
+        
+        # Filtrar las columnas seleccionadas en el dataframe
+        filtered_df = total_cat_pivot[selected_columns]
+        
+        # Creamos la figura de Plotly
+        fig = px.area(filtered_df, x=filtered_df.index, y=filtered_df.columns, color_discrete_sequence=[color_dict[virus] for virus in filtered_df.columns])
+        
+        # Configuramos la figura y la mostramos en Streamlit
+        fig.update_layout(
+            title="Distribución de la circulación de Virus Respiratorios por Categoría de Edad",
+            xaxis_title="Edad por Categoría",
+            yaxis_title="Porcentaje",
+            legend_title="Resultado",
+            height=500,
+            width=None
+        )
+        tabs = st.tabs(['Gráfico📈', 'Dataframe📄', 'Edades por Categorías📄', 'Descargar📁'])
+        with tabs[0]:
+            st.plotly_chart(fig)
 
-    # fig.add_trace(go.Scatter(
-    #     name="Adenovirus (PCR)",
-    #     x=x, y=tabla_plot["Adenovirus (PCR)"],
-    #     mode='lines',
-    #     line=dict(width=0.5, color='rgb(42,12,0)'),
-    #     stackgroup='one',
-    #     groupnorm='percent' # sets the normalization for the sum of the stackgroup
-    # ))
-    # fig.add_trace(go.Scatter(
-    #     name="Adenovirus (Determinación y/o carga)",
-    #     x=x, y=tabla_plot["Adenovirus (Determinación y/o carga)"],
-    #     mode='lines',
-    #     line=dict(width=0.5, color='rgb(2,244,213)'),
-    #     stackgroup='one'
-    # ))
-    # fig.add_trace(go.Scatter(
-    #     name="Pancoronavirus (PCR)",
-    #     x=x, y=tabla_plot["Pancoronavirus (PCR)"],
-    #     mode='lines',
-    #     line=dict(width=0.5, color='rgb(214,0,125)'),
-    #     stackgroup='one'
-    # ))
-    # fig.add_trace(go.Scatter(
-    #     name="Coronavirus 299E",
-    #     x=x, y=tabla_plot["Coronavirus 299E"],
-    #     mode='lines',
-    #     line=dict(width=0.5, color='rgb(0,137,36)'),
-    #     stackgroup='one'
-    # ))
-    # fig.add_trace(go.Scatter(
-    #     name="Coronavirus HKU1",
-    #     x=x, y=tabla_plot["Coronavirus HKU1"],
-    #     mode='lines',
-    #     line=dict(width=0.5, color='rgb(143,123,255)'),
-    #     stackgroup='one'
-    # ))
-    # fig.add_trace(go.Scatter(
-    #     name="Coronavirus NL63",
-    #     x=x, y=tabla_plot["Coronavirus NL63"],
-    #     mode='lines',
-    #     line=dict(width=0.5, color='rgb(141,156,0)'),
-    #     stackgroup='one'
-    # ))
-    # fig.add_trace(go.Scatter(
-    #     name="Coronavirus OC43",
-    #     x=x, y=tabla_plot["Coronavirus OC43"],
-    #     mode='lines',
-    #     line=dict(width=0.5, color='rgb(217,143,255)'),
-    #     stackgroup='one'
-    # ))
-    # fig.add_trace(go.Scatter(
-    #     name="SARS-CoV-2 (Array)",
-    #     x=x, y=tabla_plot["SARS-CoV-2 (Array)"],
-    #     mode='lines',
-    #     line=dict(width=0.5, color='rgb(239,151,0)'),
-    #     stackgroup='one'
-    # ))
-    # fig.add_trace(go.Scatter(
-    #     name="SARS-CoV-2 (PCR)",
-    #     x=x, y=tabla_plot["SARS-CoV-2 (PCR)"],
-    #     mode='lines',
-    #     line=dict(width=0.5, color='rgb(0,20,84)'),
-    #     stackgroup='one'
-    # ))
-    # fig.add_trace(go.Scatter(
-    #     name="Enterovirus (PCR)",
-    #     x=x, y=tabla_plot["Enterovirus (PCR)"],
-    #     mode='lines',
-    #     line=dict(width=0.5, color='rgb(221,255,183)'),
-    #     stackgroup='one'
-    # ))
-    # fig.add_trace(go.Scatter(
-    #     name="Influenza A (PCR)",
-    #     x=x, y=tabla_plot["Influenza A (PCR)"],
-    #     mode='lines',
-    #     line=dict(width=0.5, color='rgb(134,0,120)'),
-    #     stackgroup='one'
-    # ))
-    # fig.add_trace(go.Scatter(
-    #     name="Influenza B (PCR)",
-    #     x=x, y=tabla_plot["Influenza B (PCR)"],
-    #     mode='lines',
-    #     line=dict(width=0.5, color='rgb(169,255,224)'),
-    #     stackgroup='one'
-    # ))
-    # fig.add_trace(go.Scatter(
-    #     name="Metapneumovirus (PCR)",
-    #     x=x, y=tabla_plot["Metapneumovirus (PCR)"],
-    #     mode='lines',
-    #     line=dict(width=0.5, color='rgb(208,61,0)'),
-    #     stackgroup='one'
-    # ))
-    # fig.add_trace(go.Scatter(
-    #     name="Panparainfluenza (PCR)",
-    #     x=x, y=tabla_plot["Panparainfluenza (PCR)"],
-    #     mode='lines',
-    #     line=dict(width=0.5, color='rgb(1,98,125)'),
-    #     stackgroup='one'
-    # ))
-    # fig.add_trace(go.Scatter(
-    #     name="Parainfluenza 1",
-    #     x=x, y=tabla_plot["Parainfluenza 1"],
-    #     mode='lines',
-    #     line=dict(width=0.5, color='rgb(255,118,85)'),
-    #     stackgroup='one'
-    # ))
-    # fig.add_trace(go.Scatter(
-    #     name="Parainfluenza 2",
-    #     x=x, y=tabla_plot["Parainfluenza 2"],
-    #     mode='lines',
-    #     line=dict(width=0.5, color='rgb(0,122,90)'),
-    #     stackgroup='one'
-    # ))
-    # fig.add_trace(go.Scatter(
-    #     name="Parainfluenza 3",
-    #     x=x, y=tabla_plot["Parainfluenza 3"],
-    #     mode='lines',
-    #     line=dict(width=0.5, color='rgb(255,91,120)'),
-    #     stackgroup='one'
-    # ))
-    # fig.add_trace(go.Scatter(
-    #     name="Parainfluenza 4",
-    #     x=x, y=tabla_plot["Parainfluenza 4"],
-    #     mode='lines',
-    #     line=dict(width=0.5, color='rgb(223,213,255)'),
-    #     stackgroup='one'
-    # ))
-    # fig.add_trace(go.Scatter(
-    #     name="Rhinovirus (PCR)",
-    #     x=x, y=tabla_plot["Rhinovirus (PCR)"],
-    #     mode='lines',
-    #     line=dict(width=0.5, color='rgb(143,0,7)'),
-    #     stackgroup='one'
-    # ))
-    # fig.add_trace(go.Scatter(
-    #     name="VSR (Array)",
-    #     x=x, y=tabla_plot["VSR (Array)"],
-    #     mode='lines',
-    #     line=dict(width=0.5, color='rgb(255,199,165)'),
-    #     stackgroup='one'
-    # ))
-    # fig.add_trace(go.Scatter(
-    #     name="VSR (PCR)",
-    #     x=x, y=tabla_plot["VSR (PCR)"],
-    #     mode='lines',
-    #     line=dict(width=0.5, color='rgb(120,75,0)'),
-    #     stackgroup='one'
-    # ))
-    # fig.update_layout(
-    #     showlegend=True,
-    #     xaxis_type='category',
-    #     yaxis=dict(
-    #         type='linear',
-    #         range=[1, 100],
-    #         ticksuffix='%'))
-    # fig.update_layout(legend_itemclick="toggleothers")  
-    # fig.update_layout(title_text="Proporción de virus respiratorios por categoría de edad", title_x=0.5, xaxis_title="Categoría de Edad",
-    #                     yaxis_title="Proporción de Virus Respiratorios")
-    # fig.show()
+        with tabs[1]:
+            st.dataframe(filtered_df)
+
+        with tabs[2]:
+            # Tabla categorías de edad
+            cat_edad = {
+                      "Categoría de Edad": ["1", "2", "3", "4", "5", "6", "7"],
+                      "Edad": ["< 6 meses", "6 a 12 meses", "> 12 a 23 meses", "2 a 4 años", "> 4 a 9 años", "> 9 a 14 años", "> 14 a 19 años"]
+                      }
+            cat_edad = pd.DataFrame(cat_edad)
+            st.dataframe(cat_edad)
+            
+        with tabs[3]:
+            st.download_button('Descargar tabla', data=export_csv(data), file_name='distribucion_virusresp.csv', mime='text/csv')
+    
+    
+    if __name__ == '__main__':
+        
+        # Creamos el contenedor
+        chart_container()
+    
     
     # Coinfectados
     
     # Infecciones Recurrentes
+    
+    # Blurear o *** los nombres de los pacientes para exponer en Streamlit
+    
+    # Averiguar cómo hacer pára que no se pierdan los análisis cuando me muevo de página cuando uso el sidebar
+        
+    # Agregar análisis estadísticos: analizar si hay diferencias significativas en la misma semana entre los diferentes virus y además analizar si hay diferencias significativas entre semanas epidemiológicas siguiendo un mismo virus (estacionalidad de los virus respiratorios)
+    
+    
     
 else:
     st.warning("Seleccione al menos un archivo .csv")
  
 
 
-# # Tabla categorías de edad
-# cat_edad = {
-#          "Categoría de Edad": ["1", "2", "3", "4", "5", "6", "7", "Adulto"],
-#          "Edad": ["< 6 meses", "6 a 12 meses", "13 a 23 meses", "2 a 4 años", "5 a 9 años", "10 a 14 años", "15 a 19 años", "> 19 años"]
-#           }
-# cat_edad = pd.DataFrame(cat_edad)
 
-# fig =  ff.create_table(cat_edad)
-# fig.update_layout(
-#     autosize=False,
-#     width=500,
-#     height=200,
-# )
-# fig.write_image("table_plotly.png", scale=2)
-# fig.show()
-
-# # Tabla cantidad de determinaciones por estudio
-# fig =  ff.create_table(determinaciones_por_estudio)
-# fig.update_layout(
-#     autosize=False,
-#     width=800,
-#     height=600,
-# )
-# fig.write_image("muestras_proc_est_acum.png", scale=2)
-# fig.show()
-
-# print(determinaciones_por_estudio["DETERMINACIONES REALIZADAS"].sum())
-
-# # Número de determinaciones positivas (filtrar columna DET_RESULTADO_1 y quedarme con todo lo que no sea No detectado o No detectable)
-# det_positivas = datos_resp_drop[(datos_resp_drop["RESULTADO"] == "Adenovirus") |
-#                                (datos_resp_drop["RESULTADO"] == "Enterovirus") |
-#                                (datos_resp_drop["RESULTADO"] == "Pancoronavirus") |
-#                                (datos_resp_drop["RESULTADO"] == "SARS-CoV-2") |
-#                                (datos_resp_drop["RESULTADO"] == "Coronavirus 299E") |
-#                                (datos_resp_drop["RESULTADO"] == "Coronavirus HKU1") |
-#                                (datos_resp_drop["RESULTADO"] == "Coronavirus NL63") |
-#                                (datos_resp_drop["RESULTADO"] == "Coronavirus OC43") |
-#                                (datos_resp_drop["RESULTADO"] == "Rhinovirus/Enterovirus") |
-#                                (datos_resp_drop["RESULTADO"] == "Parainfluenza 1") |
-#                                (datos_resp_drop["RESULTADO"] == "Parainfluenza 2") |
-#                                (datos_resp_drop["RESULTADO"] == "Parainfluenza 3") |
-#                                (datos_resp_drop["RESULTADO"] == "Parainfluenza 4") |
-#                                (datos_resp_drop["RESULTADO"] == "VSR") |
-#                                (datos_resp_drop["RESULTADO"] == "Influenza A") |
-#                                (datos_resp_drop["RESULTADO"] == "Influenza B") |
-#                                (datos_resp_drop["RESULTADO"] == "Rhinovirus") |
-#                                (datos_resp_drop["RESULTADO"] == "Metapneumovirus") |
-#                                (datos_resp_drop["RESULTADO"] == "Panparainfluenza") |
-#                                (datos_resp_drop["RESULTADO"] == "Metapneumovirus y Rhinovirus")]
-# print(len(det_positivas))
-# det_positivas.to_csv("det_positivas_14-15-16-17-18.csv")
-# # Porcentaje positivas
-# print(round(len(det_positivas)*100/len(datos_resp_drop), 2))
-
-# # Número de determinaciones negativas
-# det_negativas = datos_resp_drop[(datos_resp_drop["RESULTADO"] == "No detectable")]
-# print(len(det_negativas))
-# # Porcentaje negativas
-# print(round(len(det_negativas)*100/len(datos_resp_drop), 2))
-
-# # Filtrar pacientes estudiados que son positivos (ojo! coinfectados cuentan doble)
-# pac_positivos = det_positivas.sort_values(["PAC_ID"])
-# pac_positivos.to_csv("pac_positivos_acum(6-18).csv")
-
-# # Número de pacientes con al menos una infección respiratoria viral
-# nro_positivos = len(det_positivas["PAC_ID"].unique())
-# print(nro_positivos)
-# # Porcentaje de pacientes con al menos una infección respiratoria viral
-# print(round(nro_positivos*100/len(pacientes_estudiados), 2))
