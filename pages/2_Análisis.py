@@ -183,9 +183,17 @@ if files:
     ## Ordenar por determinación para facilitar visualización
     dataset = dataset.sort_values(["DET_CODIGO_1", "SEMANA_EPI"])
     
+    # Función para ocultar los datos con asteriscos
+    def ocultar_datos(valor):
+        if isinstance(valor, str):
+            return '*' * len(valor)
+        else:
+            return valor
+
+    
+    
     # Breve descripción del output
     st.caption("📌 Los archivos ingresados fueron procesados para obtener el DataFrame que se muestra a continuación. Éste contiene, a diferencia de los archivos que le dieron origen: una columna con el dato de Semana Epidemiológica, una columna con la edad de los pacientes en meses y otra con la edad en años, y una columna con la edad en categorías. Adicionalmente, se seleccionaron las filas correspondientes a muestras respiratorias, se homogeneizaron mayúsculas y minúsculas, se colocaron los resultados de las determinaciones en una única columna y se eliminaron datos duplicados y filas sin resultado.", unsafe_allow_html=False)
-    st.dataframe(dataset)
     
     # # Descargar el archivo
     @st.cache
@@ -193,7 +201,12 @@ if files:
         # IMPORTANT: Cache the conversion to prevent computation on every rerun
         return df.to_csv().encode('utf-8')
     dataframe=dataset.copy()
+    # Aplicar la función a la columna NOMBRE_COMPLETO
+    dataframe['NOMBRE_COMPLETO'] = dataframe['NOMBRE_COMPLETO'].apply(ocultar_datos)
     dataset = convert_df(dataset)
+    
+    # Mostrar dataframe procesado
+    st.dataframe(dataframe)
     
     st.download_button(
         label="Descargar tabla",
@@ -201,6 +214,7 @@ if files:
         file_name='archivo_procesado.csv',
         mime='text/csv',
     )
+    
     ### Análisis de los datos
     # Cantidad de determinaciones hechas
     cantidad_determinaciones = len(dataframe)
@@ -635,41 +649,48 @@ if files:
     # Coinfectados
     st.subheader("Análisis de Coinfecciones Virales")
     st.caption("📌  .", unsafe_allow_html=False)
-    import plotly.graph_objects as go
+
+    
     # inf_mixtas es un dataframe con todos los pacientes que aparecen más de una vez en positivos. Acá se pueden encontrar pacientes coinfectados (más de un virus encontrado en muestras tomadas el mismo día), pacientes repetidos (es decir, diferentes virus en diferentes muestras tomadas en diferentes días pero de un mismo paciente), e infecciones recurrentes (mismo virus, mismo paciente, diferente fecha de toma de muestra y obviamente diferente muestra)
     inf_mixtas = positivos[positivos.duplicated(subset=['PAC_ID'], keep=False)]
     inf_mixtas = inf_mixtas.sort_values(["PAC_ID"])
-
+        
     # Sacarme de encima a los que vinieron el mismo dia y se procesaron dos veces para el mismo virus o con el mismo resultado (ejemplo: adeno pcr y adeno carga)
     inf_mixtas = inf_mixtas.drop_duplicates(subset=["PAC_ID", "FECHA_REC", "RESULTADO"])
-    
+            
     # Eliminar los pacientes que aparecen una sola vez, luego de eliminar los duplicados (no son coinfectados ni recurrentes)
     inf_mixtas = inf_mixtas[inf_mixtas.duplicated(subset=["PAC_ID"], keep=False)]
-    
+            
     # Sacar las líneas de pancorona cuando cuando pancorona y SARS-CoV-2 son positivos al mismo tiempo:
         #1:Dividir en 2 el df, por un lado los positivos para pancorona y por el otro los positivos para sars-cov-2
     filtro_pancorona = inf_mixtas[inf_mixtas["RESULTADO"] == "Pancoronavirus"].reset_index()
     filtro_covid = inf_mixtas[inf_mixtas["RESULTADO"] == "SARS-CoV-2"]
-        #2:Generar la intersección entre esos dataframes en funcion de pac_id y fecha (para asegurarme que pancorona y sars dieron positivo en el mismo momento en el mismo paciente)
+    #2:Generar la intersección entre esos dataframes en funcion de pac_id y fecha (para asegurarme que pancorona y sars dieron positivo en el mismo momento en el mismo paciente)
     intersection = filtro_covid[["PAC_ID", "FECHA_REC"]].merge(filtro_pancorona[["PAC_ID", "FECHA_REC"]])
-        #3:Unir la intersección con los pancorona
+    #3:Unir la intersección con los pancorona
     intersection = filtro_pancorona.merge(intersection).set_index("index")
-        #4:Sacar los pancorona
+    #4:Sacar los pancorona
     inf_mixtas.drop(intersection.index, inplace=True)    
-        #5 Eliminar pacientes que aparecen una sola vez, luego de eliminar los pancorona
+    #5 Eliminar pacientes que aparecen una sola vez, luego de eliminar los pancorona
     inf_mixtas = inf_mixtas[inf_mixtas.duplicated(subset=["PAC_ID"], keep=False)]
     # st.dataframe(inf_mixtas)
-
+        
     # Generar un dataframe solo con los coinfectados
     coinfectados = inf_mixtas[inf_mixtas.duplicated(subset=["NUMERO"], keep=False)]
-    st.write(coinfectados)
+    # st.write(coinfectados)
     # Contar coinfectados? metrica?
-
+    
+    
+    st.markdown("")
+    see_data = st.expander('Puede hacer click aquí para ver los datos crudos primero 👉')
+    with see_data:
+       st.dataframe(data=coinfectados.reset_index(drop=True))
+    
     # Visualización de la cantidad de pacientes coinfectados por 2 virus o más
     coinf_cant = coinfectados.groupby(["PAC_ID", "FECHA_REC"]).size().to_frame()
     coinf_cant.rename(columns={0: "CANT"}, inplace=True)
     coinf_cant.reset_index(inplace=True)
-
+        
     # Heatmap de coinfectados con 2 virus
     import numpy as np
     vector = coinf_cant[coinf_cant["CANT"] == 2]["PAC_ID"].unique()
@@ -677,48 +698,41 @@ if files:
     s = pd.crosstab(coinf_2virus.PAC_ID, coinf_2virus.RESULTADO)
     matriz_coinf = s.T.dot(s)
     np.fill_diagonal(matriz_coinf.values, matriz_coinf.values.diagonal() - s.sum())
-
-    heatmap = px.imshow(matriz_coinf)
-    st.plotly_chart(heatmap)
-    
-    # # Cantidad de pacientes coinfectados con 3 virus
-    # st.write(len(coinf_cant[coinf_cant["CANT"] == 3]))
-    # vector = coinf_cant[coinf_cant["CANT"] == 3]["PAC_ID"].unique()
+        
+    heatmap = px.imshow(matriz_coinf, color_continuous_scale='dense')
+    st.plotly_chart(heatmap, height=1000, width=1000)
+        
+    # Pacientes coinfectados con más de 2 virus (no representados en el heatmap) ESTO DEBE SER UN CONDICIONAL PARA QUE NO APAREZCA UN DATAFRAME VACIO EN LA PAGINA!!!       
+    # vector = coinf_cant[coinf_cant["CANT"] > 2]["PAC_ID"].unique()
     # multi_coinf = coinfectados.loc[coinfectados["PAC_ID"].isin(vector)]
-
-
-
-
-
+    # st.dataframe(multi_coinf)
+    
+    
     # # Número de pacientes con más de un virus detectado en el período del tiempo consultado (independientemente si son de la misma muestra o diferente)
     # pac_multinfectados = len(inf_mixtas["PAC_ID"].unique())
     # st.write(pac_multinfectados)
-
+    
     # # Porcentaje de pacientes con más de un virus detectado (independientemente si son de la misma muestra o no)
     # st.write(round(pac_multinfectados*100/len(solo_ped), 2))
-
+    
     # # Infecciones recurrentes: pacientes que aparecen varias veces porque vinieron en diferentes oportunidades pero están infectados con el mismo virus
     # # Tener en cuenta: Dentro de infecciones recurrentes puede haber coinfectados
     # inf_recurrentes = inf_mixtas[inf_mixtas.duplicated(subset=["PAC_ID", "RESULTADO"], keep=False)]
     # pac_recurrentes = len(inf_recurrentes["PAC_ID"].unique())
     # st.write(pac_recurrentes)
-
+    
     # # Porcentaje de pacientes con infecciones recurrentes
     # st.write(round(pac_recurrentes*100/len(solo_ped), 2))
-
-
+    
+    
     # # Vector en el que todo lo que es CANT > 1 es coinfección y todo lo que es CANT = 1 es infección recurrente
     # # Hay que restar los coinfectados de infecciones recurrentes
     # vector= inf_recurrentes.groupby(["PAC_ID", "NOMBRE_COMPLETO", "FECHA_REC"]).size().to_frame()
     # vector.rename(columns={0: "CANT"}, inplace=True)
     # vector.reset_index(inplace=True)
     # filtro_vector = vector[vector["CANT"] == 2].reset_index()
+    
 
-
-    
-    
-    
-    
     
     # Infecciones Recurrentes
     
