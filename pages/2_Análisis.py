@@ -673,13 +673,13 @@ if files:
         #1:Dividir en 2 el df, por un lado los positivos para pancorona y por el otro los positivos para sars-cov-2
     filtro_pancorona = inf_mixtas[inf_mixtas["RESULTADO"] == "Pancoronavirus"].reset_index()
     filtro_covid = inf_mixtas[inf_mixtas["RESULTADO"] == "SARS-CoV-2"]
-    #2:Generar la intersección entre esos dataframes en funcion de pac_id y fecha (para asegurarme que pancorona y sars dieron positivo en el mismo momento en el mismo paciente)
+        #2:Generar la intersección entre esos dataframes en funcion de pac_id y fecha (para asegurarme que pancorona y sars dieron positivo en el mismo momento en el mismo paciente)
     intersection = filtro_covid[["PAC_ID", "FECHA_REC"]].merge(filtro_pancorona[["PAC_ID", "FECHA_REC"]])
-    #3:Unir la intersección con los pancorona
+        #3:Unir la intersección con los pancorona
     intersection = filtro_pancorona.merge(intersection).set_index("index")
-    #4:Sacar los pancorona
+        #4:Sacar los pancorona
     inf_mixtas.drop(intersection.index, inplace=True)    
-    #5 Eliminar pacientes que aparecen una sola vez, luego de eliminar los pancorona
+        #5 Eliminar pacientes que aparecen una sola vez, luego de eliminar los pancorona
     inf_mixtas = inf_mixtas[inf_mixtas.duplicated(subset=["PAC_ID"], keep=False)]
     # st.dataframe(inf_mixtas)
         
