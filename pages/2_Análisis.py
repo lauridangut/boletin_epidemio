@@ -580,7 +580,7 @@ if files:
     
     # Positivos por edad. Generar una tabla de positivos en la que las filas sean las categorías de edad y las columnas todos los virus.Filled area plot circulación de virus respiratorios por edad
     st.subheader("Distribución porcentual de los Virus Respiratorios por Categoría de Edad")
-    st.caption("📌 En el siguiente gráfico de área se muestran los virus .", unsafe_allow_html=False)
+    st.caption("📌 El gráfico muestra la distribución porcentual de virus causantes de infecciones respiratorias en pacientes pediátricos por categoría de edad. En el eje horizontal se encuentran las diferentes categorías de edad de los pacientes y en el eje vertical se muestra el porcentaje del virus encontrado en cada una de las mismas. Cada área de color representa un virus específico y está claramente identificado en la leyenda del gráfico. Los porcentajes se han apilado para que sea fácil compararlos en cada categoría de edad. Este tipo de visualización brinda una perspectiva general de los principales agentes causales de infección respiratoria aguda según el rango etario de los pacientes. En la pestaña debidamente etiquetada, se encuentra disponible la tabla que muestra las diferentes categorías de edad, así como el DataFrame con los porcentajes en que se encontró cada virus en el conjunto de datos. Es importante tener en cuenta que es posible interactuar con el gráfico eliminando aquellos virus que no se consideren relevantes para el análisis y volviéndolos a agregar mediante el menú desplegable 🔽.", unsafe_allow_html=False)
     import plotly.graph_objects as go
     
     def chart_container() -> None:
@@ -608,18 +608,26 @@ if files:
         # Filtrar las columnas seleccionadas en el dataframe
         filtered_df = total_cat_pivot[selected_columns]
         
+        # Calcular el total de pacientes por categoría de edad
+        total_pacientes_filtered = filtered_df.sum(axis=1)
+        
+        # Calcular el porcentaje de cada virus por categoría de edad
+        filtered_df = filtered_df.div(total_pacientes_filtered, axis=0) * 100
+        filtered_df = filtered_df.round(2)
+        
         # Creamos la figura de Plotly
         fig = px.area(filtered_df, x=filtered_df.index, y=filtered_df.columns, color_discrete_sequence=[color_dict[virus] for virus in filtered_df.columns])
         
         # Configuramos la figura y la mostramos en Streamlit
         fig.update_layout(
-            title="Distribución de la circulación de Virus Respiratorios por Categoría de Edad",
+            title="Distribución porcentual de Virus Respiratorios por Categoría de Edad",
             xaxis_title="Edad por Categoría",
             yaxis_title="Porcentaje",
             legend_title="Resultado",
             height=500,
             width=None
         )
+        
         tabs = st.tabs(['Gráfico📈', 'Dataframe📄', 'Edades por Categorías📄', 'Descargar📁'])
         with tabs[0]:
             st.plotly_chart(fig)
@@ -741,6 +749,10 @@ if files:
     # Averiguar cómo hacer para que no se pierdan los análisis cuando me muevo de página cuando uso el sidebar
         
     # Agregar análisis estadísticos: analizar si hay diferencias significativas en la misma semana entre los diferentes virus y además analizar si hay diferencias significativas entre semanas epidemiológicas siguiendo un mismo virus (estacionalidad de los virus respiratorios)
+    
+    # Generar el reporte
+    
+    # Generar link de GitHub pages
     
     
     
