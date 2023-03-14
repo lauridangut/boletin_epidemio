@@ -67,6 +67,10 @@ colored_header(
     color_name="#9d4edd",
 )
 
+# Chequeo del entorno virtual
+import sys
+st.write(sys.executable)
+
 
 # Obtener una lista de archivos csv seleccionados por el usuario, leer los archivos, concatenarlos y hacer limpieza de los datos
 
