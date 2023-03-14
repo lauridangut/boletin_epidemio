@@ -451,7 +451,6 @@ if files:
     # Barplot: Número de determinaciones positivas (filtrar columna RESULTADO y quedarme con todo lo que no sea No detectable). Sólo PEDIÁTRICOS
     st.subheader("Comparación entre la cantidad de positivos y el total de determinaciones por estudio en pacientes pediátricos")
     st.caption("📌 El siguiente barplot contrasta la cantidad total de determinaciones con las positivas para cada estudio. Recuerde que puede posar el mouse sobre la figura para obtener información adicional, así como también, seleccionar las barras que se desea visualizar haciendo click en la referencia del margen. Además, puede acceder al modo fullscreen para agrandar la imagen.", unsafe_allow_html=False)
-    import plotly.graph_objects as go
     value_counts = positivos['ESTUDIO'].value_counts()
     estudio = value_counts.index
     counts = value_counts.values
@@ -581,8 +580,6 @@ if files:
     # Positivos por edad. Generar una tabla de positivos en la que las filas sean las categorías de edad y las columnas todos los virus.Filled area plot circulación de virus respiratorios por edad
     st.subheader("Distribución porcentual de los Virus Respiratorios por Categoría de Edad")
     st.caption("📌 El gráfico muestra la distribución porcentual de virus causantes de infecciones respiratorias en pacientes pediátricos por categoría de edad. En el eje horizontal se encuentran las diferentes categorías de edad de los pacientes y en el eje vertical se muestra el porcentaje del virus encontrado en cada una de las mismas. Cada área de color representa un virus específico y está claramente identificado en la leyenda del gráfico. Los porcentajes se han apilado para que sea fácil compararlos en cada categoría de edad. Este tipo de visualización brinda una perspectiva general de los principales agentes causales de infección respiratoria aguda según el rango etario de los pacientes. En la pestaña debidamente etiquetada, se encuentra disponible la tabla que muestra las diferentes categorías de edad, así como el DataFrame con los porcentajes en que se encontró cada virus en el conjunto de datos. Es importante tener en cuenta que es posible interactuar con el gráfico eliminando aquellos virus que no se consideren relevantes para el análisis y volviéndolos a agregar mediante el menú desplegable 🔽.", unsafe_allow_html=False)
-    import plotly.graph_objects as go
-    
     def chart_container() -> None:
 
         # Agrupar por categoría de edad y resultado y contar el número de pacientes
