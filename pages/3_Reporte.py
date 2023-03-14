@@ -12,14 +12,14 @@ import pdfkit
 #Título de la página
 st.set_page_config(
     page_title="Aplicación para la vigilancia epidemiológica de los Virus Respiratorios",
-    page_icon="/home/usuario/Downloads/Laura/boletin_epidemio/img/virus.png", 
+    page_icon="https://raw.githubusercontent.com/lauridangut/boletin_epidemio/main/img/virus.png", 
     layout="wide"
     )
 
 #Barra lateral
 st.sidebar.markdown('# Unidad de Virología y Epidemiología Molecular')
 st.sidebar.image(
-    '/home/usuario/Downloads/Laura/boletin_epidemio/img/logo_garrahan.png', width=200)
+    'https://raw.githubusercontent.com/lauridangut/boletin_epidemio/main/img/logo_garrahan.png', width=200)
 
 #Principal
 st.header("Servicio de Microbiología - Hospital de Pediatría S.A.M.I.C. 'Prof. Dr. Juan P. Garrahan'")
