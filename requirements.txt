@@ -268,7 +268,6 @@ webencodings==0.5.1
 widgetsnbextension==3.6.0
 wrapt==1.11.2
 wurlitzer==3.0.2
-xkit==0.0.0
 yapf==0.32.0
 yarg==0.1.9
 zipp==1.0.0
