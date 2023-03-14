@@ -27,7 +27,6 @@ cffi==1.15.0
 chardet==3.0.4
 charset-normalizer==2.0.12
 chart-studio==1.1.0
-Click==7.0
 click-plugins==1.1.1
 cligj==0.7.2
 cloudpickle==1.3.0
