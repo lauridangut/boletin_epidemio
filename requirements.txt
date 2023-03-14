@@ -217,7 +217,7 @@ shellescape==3.4.1
 simplejson==3.16.0
 sip==6.7.7
 six==1.14.0
-sklearn==0.0.post1
+scikit-learn
 smmap==5.0.0
 snowballstemmer==2.2.0
 sortedcontainers==2.4.0
