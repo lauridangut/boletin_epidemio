@@ -2,7 +2,7 @@ name: boletin
 channels:
   - defaults
 dependencies:
-  - streamlib
+  - streamlit
   - ca-certificates=2023.01.10
   - certifi=2022.12.7
   - flit-core=3.6.0
