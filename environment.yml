@@ -2,35 +2,35 @@ name: boletin
 channels:
   - defaults
 dependencies:
-  - ca-certificates=2023.01.10=haa95532_0
-  - certifi=2022.12.7=py39haa95532_0
-  - flit-core=3.6.0=pyhd3eb1b0_0
-  - freetype=2.10.4=hd328e21_0
-  - giflib=5.2.1=h8cc25b3_3
-  - jpeg=9e=h2bbff1b_1
-  - lerc=3.0=hd77b12b_0
-  - libdeflate=1.17=h2bbff1b_0
-  - libpng=1.6.39=h8cc25b3_0
-  - libtiff=4.5.0=h6c2663c_2
-  - libwebp=1.2.4=hbc33d0d_1
-  - libwebp-base=1.2.4=h2bbff1b_1
-  - lz4-c=1.9.4=h2bbff1b_0
-  - openssl=1.1.1t=h2bbff1b_0
-  - pip=23.0.1=py39haa95532_0
-  - pypdf2=2.10.5=py39haa95532_0
-  - python=3.9.16=h6244533_2
-  - reportlab=3.6.12=py39h2bbff1b_0
-  - setuptools=65.6.3=py39haa95532_0
-  - sqlite=3.40.1=h2bbff1b_0
-  - tk=8.6.12=h2bbff1b_0
-  - typing_extensions=4.4.0=py39haa95532_0
-  - vc=14.2=h21ff451_1
-  - vs2015_runtime=14.27.29016=h5e58377_2
-  - wheel=0.38.4=py39haa95532_0
-  - wincertstore=0.2=py39haa95532_2
-  - xz=5.2.10=h8cc25b3_1
-  - zlib=1.2.13=h8cc25b3_0
-  - zstd=1.5.2=h19a0ad4_0
+  - ca-certificates=2023.01.10
+  - certifi=2022.12.7
+  - flit-core=3.6.0
+  - freetype=2.10.4
+  - giflib=5.2.1
+  - jpeg=9e
+  - lerc=3.0
+  - libdeflate=1.17
+  - libpng=1.6.39
+  - libtiff=4.5.0
+  - libwebp=1.2.4
+  - libwebp-base=1.2.4
+  - lz4-c=1.9.4
+  - openssl=1.1.1t
+  - pip=23.0.1
+  - pypdf2=2.10.5
+  - python=3.9.16
+  - reportlab=3.6.12
+  - setuptools=65.6.3
+  - sqlite=3.40.1
+  - tk=8.6.12
+  - typing_extensions=4.4.0
+  - vc=14.2
+  - vs2015_runtime=14.27.29016
+  - wheel=0.38.4
+  - wincertstore=0.2
+  - xz=5.2.10
+  - zlib=1.2.13
+  - zstd=1.5.2
   - pip:
     - altair==4.2.2
     - attrs==22.2.0
