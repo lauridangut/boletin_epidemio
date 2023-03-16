@@ -657,7 +657,7 @@ if files:
     
     # Coinfectados
     st.subheader("Análisis de Coinfecciones Virales")
-    st.caption("📌  .", unsafe_allow_html=False)
+    st.caption("📌 A continuación se presenta un gráfico que ilustra las coinfecciones virales detectadas en pacientes durante un periodo de consulta específico, en el cual se registró la presencia simultánea de dos virus respiratorios en una misma muestra tomada el mismo día. Se excluyeron del análisis las co-detecciones de Pancoronavirus y SARS-CoV-2, así como también los pacientes que presentaron infección con más de dos virus, los cuales no fueron considerados en este análisis.", unsafe_allow_html=False)
 
     
     # inf_mixtas es un dataframe con todos los pacientes que aparecen más de una vez en positivos. Acá se pueden encontrar pacientes coinfectados (más de un virus encontrado en muestras tomadas el mismo día), pacientes repetidos (es decir, diferentes virus en diferentes muestras tomadas en diferentes días pero de un mismo paciente), e infecciones recurrentes (mismo virus, mismo paciente, diferente fecha de toma de muestra y obviamente diferente muestra)
