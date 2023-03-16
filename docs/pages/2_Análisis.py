@@ -6,22 +6,6 @@ Created on Mon Jan 16 15:21:04 2023
 @author: usuario
 """
 
-#Importación de librerías y paquetes
-# import numpy as np
-# import matplotlib as plt
-# pd.options.plotting.backend = "plotly"
-# import chart_estudio.plotly as py
-# import plotly.express as px
-# import plotly.graph_objects as go
-# import plotly.io as pio
-# import plotly.express as px
-# import plotly.figure_factory as ff
-# pio.renderers.default='browser'
-# import seaborn as sns
-# from pandas.api.types import CategoricalDtype
-# import dateutil.parser
-# import os
-# import glob
 
 #Título de la página
 import streamlit as st
@@ -66,10 +50,6 @@ colored_header(
     description=descripcion,
     color_name="#9d4edd",
 )
-
-# Chequeo del entorno virtual
-import sys
-st.write(sys.executable)
 
 
 # Obtener una lista de archivos csv seleccionados por el usuario, leer los archivos, concatenarlos y hacer limpieza de los datos
@@ -200,7 +180,7 @@ if files:
     st.caption("📌 Los archivos ingresados fueron procesados para obtener el DataFrame que se muestra a continuación. Éste contiene, a diferencia de los archivos que le dieron origen: una columna con el dato de Semana Epidemiológica, una columna con la edad de los pacientes en meses y otra con la edad en años, y una columna con la edad en categorías. Adicionalmente, se seleccionaron las filas correspondientes a muestras respiratorias, se homogeneizaron mayúsculas y minúsculas, se colocaron los resultados de las determinaciones en una única columna y se eliminaron datos duplicados y filas sin resultado.", unsafe_allow_html=False)
     
     # # Descargar el archivo
-    @st.cache
+    @st.cache_data
     def convert_df(df):
         # IMPORTANT: Cache the conversion to prevent computation on every rerun
         return df.to_csv().encode('utf-8')
@@ -406,7 +386,7 @@ if files:
         theme='alpine', #Add theme color to the table
         enable_enterprise_modules=True,
         height=600, 
-        width='40%',
+        width='30%',
         reload_data=True
     )
     
@@ -421,7 +401,6 @@ if files:
         st.plotly_chart(fig)
     # else:
     #     st.write("Seleccione las filas de la tabla que desee graficar.")
-    
 
         
     # Tabla: Pediátricos Positivos

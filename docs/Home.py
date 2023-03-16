@@ -23,10 +23,6 @@ st.sidebar.image(
 st.header("Servicio de Microbiología - Hospital de Pediatría S.A.M.I.C. 'Prof. Dr. Juan P. Garrahan'")
 
 #Cuerpo
-# st.subheader("¡Bienvenidos!")
-# st.caption("Esta aplicación fue desarrollada por el equipo de Bioinformática del Hospital de Pediatría S.A.M.I.C. 'Prof. Dr. Juan P. Garrahan'.")
-# st.caption("La fuente de información utilizada para el análisis de datos proviene del sistema informático hospitalario SIG-HG.")
-
 from typing import Optional
 
 def colored_header(
