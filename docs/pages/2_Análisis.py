@@ -402,6 +402,9 @@ if files:
     # else:
     #     st.write("Seleccione las filas de la tabla que desee graficar.")
 
+    
+
+
         
     # Tabla: Pediátricos Positivos
     st.subheader("Pacientes Pediátricos con Infección Viral Respiratoria")
