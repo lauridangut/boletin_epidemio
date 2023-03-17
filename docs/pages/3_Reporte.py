@@ -53,7 +53,7 @@ colored_header(
 
 
 def streamlit_to_pdf(filename):
-    config = pdfkit.configuration(wkhtmltopdf='https://github.com/lauridangut/boletin_epidemio/blob/e48996666c89cddbdbb118857672a62862e9d498/docs/pages/2_An%C3%A1lisis.py/wkhtmltopdf')
+    config = pdfkit.configuration(wkhtmltopdf='https://github.com/lauridangut/boletin_epidemio/blob/999dd951146052d0f5a360bfbccaa8dec1d1056f/docs/pages/2_Analisis.py/wkhtmltopdf')
     options = {
         'page-size': 'A4',
         'margin-top': '0mm',
