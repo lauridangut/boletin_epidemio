@@ -40,7 +40,7 @@ def colored_header(
         unsafe_allow_html=True,
     )
     if description:
-        st.caption(description)
+        st.write(description)
 
 
 titulo = "¡Bienvenidos!"
