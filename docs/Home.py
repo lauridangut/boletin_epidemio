@@ -36,7 +36,7 @@ def colored_header(
     st.title(label)
     st.write(
         f'<hr style="background-color: {color_name}; margin-top: 0;'
-        ' margin-bottom: 0; height: 3px; border: none; border-radius: 3px;">',
+        ' margin-bottom: 0; height: 3px; border: none; border-radius: 3px; text-align: justify">',
         unsafe_allow_html=True,
     )
     if description:
