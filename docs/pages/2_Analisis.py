@@ -46,7 +46,7 @@ def colored_header(
 descripcion = "📌 Utilice el sistema informático hospitalario SIG-HG para extraer la información a analizar"
         
 colored_header(
-    label="Carga de datos y primeros análisis",
+    label="Carga de datos y Análisis",
     description=descripcion,
     color_name="#9d4edd",
 )
@@ -180,7 +180,7 @@ if files:
     st.caption("📌 Los archivos ingresados fueron procesados para obtener el DataFrame que se muestra a continuación. Éste contiene, a diferencia de los archivos que le dieron origen: una columna con el dato de Semana Epidemiológica, una columna con la edad de los pacientes en meses y otra con la edad en años, y una columna con la edad en categorías. Adicionalmente, se seleccionaron las filas correspondientes a muestras respiratorias, se homogeneizaron mayúsculas y minúsculas, se colocaron los resultados de las determinaciones en una única columna y se eliminaron datos duplicados y filas sin resultado.", unsafe_allow_html=False)
     
     # # Descargar el archivo
-    @st.cache
+    @st.cache_data
     def convert_df(df):
         # IMPORTANT: Cache the conversion to prevent computation on every rerun
         return df.to_csv().encode('utf-8')
@@ -401,6 +401,9 @@ if files:
     # else:
     #     st.write("Seleccione las filas de la tabla que desee graficar.")
 
+    
+
+
         
     # Tabla: Pediátricos Positivos
     st.subheader("Pacientes Pediátricos con Infección Viral Respiratoria")
@@ -410,7 +413,7 @@ if files:
     positivos['SEMANA_EPI'] = positivos['SEMANA_EPI'].astype(str).str[-2:]
     # st.dataframe(positivos)    
     
-        
+    
     # st.dataframe(positivos)
     gb = GridOptionsBuilder.from_dataframe(positivos)
     gb.configure_pagination(paginationAutoPageSize=True) #Add pagination
