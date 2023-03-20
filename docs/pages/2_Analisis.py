@@ -723,18 +723,14 @@ if files:
     # filtro_vector = vector[vector["CANT"] == 2].reset_index()
     
 
-    
-    # Infecciones Recurrentes
-    
-    # Blurear o *** los nombres de los pacientes para exponer en Streamlit
-    
+    # Ver qué pasa con los dataframes interactivos de AgGrid
+
     # Averiguar cómo hacer para que no se pierdan los análisis cuando me muevo de página cuando uso el sidebar
         
     # Agregar análisis estadísticos: analizar si hay diferencias significativas en la misma semana entre los diferentes virus y además analizar si hay diferencias significativas entre semanas epidemiológicas siguiendo un mismo virus (estacionalidad de los virus respiratorios)
     
     # Generar el reporte
     
-    # Generar link de GitHub pages
     
     
     
