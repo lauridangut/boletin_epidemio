@@ -385,7 +385,7 @@ if files:
         fit_columns_on_grid_load=True,
         theme='alpine', #Add theme color to the table
         enable_enterprise_modules=True,
-        height=600, 
+        # height=600, 
         width='30%',
         reload_data=True
     )
@@ -421,7 +421,7 @@ if files:
     download_filename = "pediatricos_positivos.csv"
     download_button = "Descargar tabla"
     grid_id = "my_grid"
-    AgGrid(positivos, gridOptions=gridOptions, grid_id=grid_id, height=600, theme='alpine')
+    AgGrid(positivos, gridOptions=gridOptions, grid_id=grid_id, theme='alpine')
     
     # Crear un botón de descarga
     csv = positivos.to_csv(index=False).encode()
@@ -535,7 +535,7 @@ if files:
         fit_columns_on_grid_load=False,
         theme='alpine', #Add theme color to the table
         enable_enterprise_modules=True,
-        height=600, 
+        # height=600, 
         width='100%',
         reload_data=True
     )
