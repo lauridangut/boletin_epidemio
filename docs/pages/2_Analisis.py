@@ -401,16 +401,17 @@ if files:
     # else:
     #     st.write("Seleccione las filas de la tabla que desee graficar.")
 
-    
-
-
         
     # Tabla: Pediátricos Positivos
     st.subheader("Pacientes Pediátricos con Infección Viral Respiratoria")
     st.caption("📌 En el DataFrame que se muestra a continuación se encuentran los datos de aquellos pacientes que resultaron positivos para al menos uno de los estudios de infección respiratoria. Utilice la barra lateral del mismo para realizar filtrados de las columnas y obtener una visualización óptima.", unsafe_allow_html=False)
     lista_positivos = ["Adenovirus", "Enterovirus", "Pancoronavirus", "SARS-CoV-2", "Coronavirus 299E", "Coronavirus HKU1", "Coronavirus NL63", "Coronavirus OC43", "Rhinovirus/Enterovirus",  "Parainfluenza 1", "Parainfluenza 2", "Parainfluenza 3", "Parainfluenza 4", "VSR", "Influenza A", "Influenza B", "Rhinovirus", "Metapneumovirus", "Panparainfluenza", "Metapneumovirus y Rhinovirus"]
     positivos = solo_ped[solo_ped["RESULTADO"].isin(lista_positivos)]
-
+    positivos['SEMANA_EPI'] = positivos['SEMANA_EPI'].astype(str).str[-2:]
+    # st.dataframe(positivos)    
+    
+        
+    # st.dataframe(positivos)
     gb = GridOptionsBuilder.from_dataframe(positivos)
     gb.configure_pagination(paginationAutoPageSize=True) #Add pagination
     gb.configure_side_bar() #Add a sidebar
@@ -722,8 +723,6 @@ if files:
     # vector.reset_index(inplace=True)
     # filtro_vector = vector[vector["CANT"] == 2].reset_index()
     
-
-    # Ver qué pasa con los dataframes interactivos de AgGrid
 
     # Averiguar cómo hacer para que no se pierdan los análisis cuando me muevo de página cuando uso el sidebar
         
