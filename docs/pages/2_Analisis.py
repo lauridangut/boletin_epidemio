@@ -687,12 +687,13 @@ def analisis():
         intersection = filtro_pancorona.merge(intersection).set_index("index")
             #4:Sacar los pancorona
         inf_mixtas.drop(intersection.index, inplace=True)    
-            #5 Eliminar pacientes que aparecen una sola vez, luego de eliminar los pancorona
+            #5: Eliminar pacientes que aparecen una sola vez, luego de eliminar los pancorona
         inf_mixtas = inf_mixtas[inf_mixtas.duplicated(subset=["PAC_ID"], keep=False)]
         # st.dataframe(inf_mixtas)
-            
+
         # Generar un dataframe solo con los coinfectados
         coinfectados = inf_mixtas[inf_mixtas.duplicated(subset=["NUMERO"], keep=False)]
+        coinfectados = coinfectados.sort_values("NUMERO")
         # st.write(coinfectados)
         # Contar coinfectados? metrica?
         
@@ -718,52 +719,24 @@ def analisis():
             file_name="coinfectados.csv",
             mime="text/csv",
         )
-        
-        
-        # # Agrupar los datos por PAC_ID y FECHA_REC
-        # grouped = positivos.groupby(['PAC_ID', 'FECHA_REC'])
-        # st.dataframe(grouped)
-        # # Obtener todas las combinaciones únicas de virus y resultados en cada fecha para cada paciente
-        # combinations = grouped.apply(lambda x: list(x[['VIRUS', 'RESULTADO']].itertuples(index=False, name=None)))
-        
-        # # Eliminar las combinaciones que tengan el mismo virus y resultado
-        # combinations = combinations.apply(lambda x: list(set([i for i in x if i[1] != 'NEGATIVO' and x.count(i) == 1])))
-        
-        # # Eliminar las filas de pacientes que solo tienen una combinación única de virus y resultado
-        # combinations = combinations[combinations.apply(lambda x: len(x) > 1)]
-        
-        # # Crear un dataframe con los pacientes con coinfección
-        # coinfectados = pd.DataFrame({'PAC_ID': combinations.index.get_level_values(0), 'FECHA_REC': combinations.index.get_level_values(1), 'VIRUS_RESULTADO': combinations.values})
-        
-        # # Separar la columna VIRUS_RESULTADO en dos columnas separadas para VIRUS y RESULTADO
-        # coinfectados[['VIRUS', 'RESULTADO']] = pd.DataFrame(coinfectados['VIRUS_RESULTADO'].tolist(), index=coinfectados.index)
-        
-        # # Eliminar la columna VIRUS_RESULTADO
-        # coinfectados.drop(columns=['VIRUS_RESULTADO'], inplace=True)
 
         
-        
-        # st.markdown("")
-        # see_data = st.expander('Haga click aquí para desplegar 📂')
-        # with see_data:
-        #     st.dataframe(data=coinfectados.reset_index(drop=True))
-        
-        # Visualización de la cantidad de pacientes coinfectados por 2 virus o más
-        coinf_cant = coinfectados.groupby(["PAC_ID", "FECHA_REC"]).size().to_frame()
+        coinf_cant = coinfectados.groupby(["NUMERO"]).size().to_frame()
         coinf_cant.rename(columns={0: "CANT"}, inplace=True)
         coinf_cant.reset_index(inplace=True)
-            
+        
+        
         # Heatmap de coinfectados con 2 virus
         import numpy as np
-        vector = coinf_cant[coinf_cant["CANT"] == 2]["PAC_ID"].unique()
-        coinf_2virus = coinfectados.loc[coinfectados["PAC_ID"].isin(vector)]
-        s = pd.crosstab(coinf_2virus.PAC_ID, coinf_2virus.RESULTADO)
+        vector = coinf_cant[coinf_cant["CANT"] == 2]["NUMERO"].unique()
+        coinf_2virus = coinfectados.loc[coinfectados["NUMERO"].isin(vector)]
+        s = pd.crosstab(coinf_2virus.NUMERO, coinf_2virus.RESULTADO)
         matriz_coinf = s.T.dot(s)
         np.fill_diagonal(matriz_coinf.values, matriz_coinf.values.diagonal() - s.sum())
             
         heatmap = px.imshow(matriz_coinf, color_continuous_scale='dense')
         st.plotly_chart(heatmap, height=1000, width=1000)
-            
+        
         # Pacientes coinfectados con más de 2 virus (no representados en el heatmap) ESTO DEBE SER UN CONDICIONAL PARA QUE NO APAREZCA UN DATAFRAME VACIO EN LA PAGINA!!!       
         # vector = coinf_cant[coinf_cant["CANT"] > 2]["PAC_ID"].unique()
         # multi_coinf = coinfectados.loc[coinfectados["PAC_ID"].isin(vector)]
@@ -795,8 +768,7 @@ def analisis():
         # filtro_vector = vector[vector["CANT"] == 2].reset_index()
         
     
-        # Averiguar cómo hacer para que no se pierdan los análisis cuando me muevo de página cuando uso el sidebar
-            
+                   
         # Agregar análisis estadísticos: analizar si hay diferencias significativas en la misma semana entre los diferentes virus y además analizar si hay diferencias significativas entre semanas epidemiológicas siguiendo un mismo virus (estacionalidad de los virus respiratorios)
         
 
