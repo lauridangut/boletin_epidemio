@@ -6,53 +6,42 @@ Utilizando técnicas de análisis de datos avanzadas, la aplicación transforma 
 
 ## ¿Cómo utilizar la aplicación?
 Existen dos alternativas para utilizar esta aplicación: de manera local y online.
-Para utilizar la aplicación de forma local, siga los siguientes pasos:
-### Windows
-1. Abre el símbolo del sistema de Windows.
-2. Instala Python en tu máquina. Descarga el instalador de Python desde la página oficial de Python y sigue las instrucciones de instalación.
-3. Instala Streamlit escribiendo el siguiente comando en el símbolo del sistema de Windows:
-      ```
-      pip install streamlit
-      ```  
-4. Una vez que Streamlit esté instalado, puedes ejecutarlo en el símbolo del sistema de Windows escribiendo el siguiente comando:
+
+
+Para utilizar la aplicación de forma **local**, siga los siguientes pasos:
+
+### Clone el repositorio
+1. Abra la página del repositorio en GitHub.
+2. Haga click en el botón "Code" y seleccione "Download ZIP" para descargar el repositorio como un archivo comprimido ZIP.
+3. Extraiga el archivo ZIP en una carpeta de su elección.
+
+### Instale las dependencias
+4. Abra una terminal y navegue hasta la carpeta del repositorio clonado.
+5. Cree un entorno virtual de Python:
+      - En Windows: python -m venv venv
+      - En Linux/Mac: python3 -m venv venv
+6. Active el entorno virtual:
+      - En Windows: venv\Scripts\activate.bat
+      - En Linux/Mac: source venv/bin/activate
+7. Instale las dependencias:
+
+```
+pip install -r requirements.txt
+```
+
+
+### Ejecute la aplicación
+8. Ejecute el siguiente comando para iniciar la aplicación:
       
-      ```
-      streamlit run Home.py
-      ```
 
-### Linux
-1. Abre la terminal de Linux.
-2. Instala Python en tu máquina. Para hacerlo, escribe el siguiente comando en la terminal de Linux:
+```
+streamlit run Home.py
+```
+            
+            
+9. La aplicación se ejecutará en su navegador predeterminado. Si no se abre automáticamente, puede acceder a ella en su navegador visitando http://localhost:8501.        
 
-    ```
-    sudo apt-get install python3
-    ```
-3. Instala Streamlit escribiendo el siguiente comando en la terminal de Linux:
 
-    ```
-    pip install streamlit
-    ```
-4. Una vez que Streamlit esté instalado, puedes ejecutarlo en la terminal de Linux escribiendo el siguiente comando:
-
-    ```
-    streamlit run Home.py
-    ```
-
-### Mac
-1. Abre la terminal de Mac.
-2. Instala Python en tu máquina. Puedes hacerlo descargando el instalador de Python desde la página oficial de Python y siguiendo las instrucciones de instalación.
-3. Instala Streamlit escribiendo el siguiente comando en la terminal de Mac:
-  
-    ```
-    pip install streamlit
-    ```
-4. Una vez que Streamlit esté instalado, puedes ejecutarlo en la terminal de Mac escribiendo el siguiente comando:
-
-    ```
-    streamlit run Home.py
-    ```  
-  
-  
 Para utilizar la aplicación de forma **online**, simplemente siga estos pasos:
 
   1. Ingrese al link: https://lauridangut-boletin-epidemio-docshome-9kbf0q.streamlit.app/
@@ -72,5 +61,5 @@ Para utilizar la aplicación de forma local es necesario tener instalado lo sigu
 Esta aplicación fue desarrollada por Laura Gutiérrez y supervisada por Martín Ruhle, en el marco de una Beca de Bioinformática Aplicada a la Virología Clínica. Agradecemos al laboratorio de Bioinformática y al Servicio de Microbiología del Hospital que nos apoyaron en su desarrollo.
 
 ## Contacto
-Si tienes alguna pregunta o sugerencia, no dudes en contactarnos en laura.d.gutierrez@alumni.garrahan.edu.ar. ¡Gracias por utilizar nuestra aplicación!
+Si tiene alguna pregunta o sugerencia, no dude en contactarnos en laura.d.gutierrez@alumni.garrahan.edu.ar. ¡Gracias por utilizar nuestra aplicación!
 
