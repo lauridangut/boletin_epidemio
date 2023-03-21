@@ -697,10 +697,56 @@ def analisis():
         # Contar coinfectados? metrica?
         
         
+        
+        gb = GridOptionsBuilder.from_dataframe(coinfectados)
+        gb.configure_pagination(paginationAutoPageSize=True) #Add pagination
+        gb.configure_side_bar() #Add a sidebar
+        gridOptions = gb.build()
+        
+        
         st.markdown("")
         see_data = st.expander('Haga click aquí para desplegar 📂')
         with see_data:
-           st.dataframe(data=coinfectados.reset_index(drop=True))
+            AgGrid(coinfectados, gridOptions=gridOptions, grid_id=grid_id, theme='alpine')
+        
+        
+        # Crear un botón de descarga
+        csv = coinfectados.to_csv(index=False).encode()
+        st.download_button(
+            label="Descargar tabla",
+            data=csv,
+            file_name="coinfectados.csv",
+            mime="text/csv",
+        )
+        
+        
+        # # Agrupar los datos por PAC_ID y FECHA_REC
+        # grouped = positivos.groupby(['PAC_ID', 'FECHA_REC'])
+        # st.dataframe(grouped)
+        # # Obtener todas las combinaciones únicas de virus y resultados en cada fecha para cada paciente
+        # combinations = grouped.apply(lambda x: list(x[['VIRUS', 'RESULTADO']].itertuples(index=False, name=None)))
+        
+        # # Eliminar las combinaciones que tengan el mismo virus y resultado
+        # combinations = combinations.apply(lambda x: list(set([i for i in x if i[1] != 'NEGATIVO' and x.count(i) == 1])))
+        
+        # # Eliminar las filas de pacientes que solo tienen una combinación única de virus y resultado
+        # combinations = combinations[combinations.apply(lambda x: len(x) > 1)]
+        
+        # # Crear un dataframe con los pacientes con coinfección
+        # coinfectados = pd.DataFrame({'PAC_ID': combinations.index.get_level_values(0), 'FECHA_REC': combinations.index.get_level_values(1), 'VIRUS_RESULTADO': combinations.values})
+        
+        # # Separar la columna VIRUS_RESULTADO en dos columnas separadas para VIRUS y RESULTADO
+        # coinfectados[['VIRUS', 'RESULTADO']] = pd.DataFrame(coinfectados['VIRUS_RESULTADO'].tolist(), index=coinfectados.index)
+        
+        # # Eliminar la columna VIRUS_RESULTADO
+        # coinfectados.drop(columns=['VIRUS_RESULTADO'], inplace=True)
+
+        
+        
+        # st.markdown("")
+        # see_data = st.expander('Haga click aquí para desplegar 📂')
+        # with see_data:
+        #     st.dataframe(data=coinfectados.reset_index(drop=True))
         
         # Visualización de la cantidad de pacientes coinfectados por 2 virus o más
         coinf_cant = coinfectados.groupby(["PAC_ID", "FECHA_REC"]).size().to_frame()
@@ -753,13 +799,11 @@ def analisis():
             
         # Agregar análisis estadísticos: analizar si hay diferencias significativas en la misma semana entre los diferentes virus y además analizar si hay diferencias significativas entre semanas epidemiológicas siguiendo un mismo virus (estacionalidad de los virus respiratorios)
         
-        # Generar el reporte
+
                 
     else:
         st.warning("Seleccione al menos un archivo .csv")
  
 analisis()
-# my_input = analisis()
-# if my_input not in st.session_state:
-#     st.session_state["my_input"] = ""
+
 
