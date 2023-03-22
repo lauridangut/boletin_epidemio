@@ -62,10 +62,10 @@ files = st.file_uploader(
   )
 def analisis():
     if files:
-        dataset = pd.concat([pd.read_csv(file, sep=";",encoding=("ISO-8859-1")) for file in files], join="inner", ignore_index=True)
+        data = pd.concat([pd.read_csv(file, sep=";",encoding=("ISO-8859-1")) for file in files], join="inner", ignore_index=True)
         # Tratamiento de los datos
         ## Quedarme con las filas que sí o sí contengan el dato de fecha de muestra
-        dataset = dataset[dataset['FECHA_REC'].notna()]
+        dataset = data[data['FECHA_REC'].notna()]
         ## Dar formato de fecha a "FECHA_NACIMIENTO" y "FECHA_REC"
         # # =============================================================================
         # # OJOOOOOO!!! LAS FECHAS DE LOS CSV DEBEN TENER EL MISMO FORMATO 
