@@ -247,10 +247,10 @@ def analisis():
         pac_est_sexo_edad.reset_index(inplace=True)
         pac_est_sexo_edad = pac_est_sexo_edad.pivot(index="CAT_EDAD", columns="SEXO", values="CANT")
         pac_est_sexo_edad.reset_index(inplace=True)
-        edad_dict = {"1": "< 6 meses", "2": "6 a 12 meses", "3": "13 a 23 meses", "4": "2 a 4 años",
-                     "5": "> 4 a 9 años", "6": "> 9 a 14 años", "7": "> 14 a 19 años", "8": "Adulto"}
+        edad_dict = {1: "< 6 meses", 2: "6 a 12 meses", 3: "13 a 23 meses", 4: "2 a 4 años",
+                     5: "> 4 a 9 años", 6: "> 9 a 14 años", 7: "> 14 a 19 años", "Adulto": "Adulto"}
         pac_est_sexo_edad["EDAD"] = pac_est_sexo_edad["CAT_EDAD"].replace(edad_dict)
-    
+
         # Gráfico población estudiada (sexo y edad)
         st.subheader("Población estudiada en función de edad y sexo")
         st.caption("📌 El siguiente gráfico muestra la distribución de la población estudiada por edad y sexo. En el eje vertical se muestra la edad y en el eje horizontal se muestra el número total de pacientes estudiados. Hay dos barras para cada edad: una para los varones y otra para las mujeres. La barra azul representa el número de varones y la barra violeta representa el número de mujeres. Pose el mouse sobre cada barra para visualizar la cantidad de pacientes estudiados. Para descargar la imagen, haga click en el ícono 📷 ('Download plot as png').", unsafe_allow_html=False)
