@@ -1,4 +1,3 @@
-python
 streamlit
 pandas
 datetime
@@ -8,4 +7,3 @@ streamlit-extras
 plotly
 streamlit-aggrid
 numpy
-pdfkit
