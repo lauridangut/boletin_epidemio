@@ -399,12 +399,9 @@ def analisis():
         df1 = pd.DataFrame(selected1) #Pass the selected rows to a new dataframe df
         
         
-        if selected1:
-            fig = px.bar(df1, x='VIRUS (MÉTODO)', y='DETERMINACIONES REALIZADAS', color="VIRUS (MÉTODO)", color_discrete_map=color_dictionary, title="DETERMINACIONES REALIZADAS")
-            fig.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')
-            st.plotly_chart(fig)
-        # else:
-        #     st.write("Seleccione las filas de la tabla que desee graficar.")
+        fig = px.bar(df1, x='VIRUS (MÉTODO)', y='DETERMINACIONES REALIZADAS', color="VIRUS (MÉTODO)", color_discrete_map=color_dictionary, title="DETERMINACIONES REALIZADAS")
+        fig.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')
+        st.plotly_chart(fig)
     
         # Crear un botón de descarga
         csv = determinaciones_por_estudio.to_csv(index=False).encode()
