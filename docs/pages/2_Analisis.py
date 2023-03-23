@@ -489,7 +489,7 @@ def analisis():
         color_dict = {"Adenovirus": color_list[0], "Enterovirus": color_list[1], "Pancoronavirus": color_list[2], "SARS-CoV-2": color_list[3], "Coronavirus 299E": color_list[4], "Coronavirus HKU1": color_list[5], "Coronavirus NL63": color_list[6], "Coronavirus OC43": color_list[7], "Rhinovirus/Enterovirus": color_list[8], "Parainfluenza 1": color_list[9], "Parainfluenza 2": color_list[10], "Parainfluenza 3": color_list[11], "Parainfluenza 4": color_list[12], "VSR": color_list[13], "Influenza A": color_list[14], "Influenza B": color_list[15], "Rhinovirus": color_list[16], "Metapneumovirus": color_list[17], "Panparainfluenza": color_list[18], "Metapneumovirus y Rhinovirus": color_list[19], "No detectable": color_list[20]}
     
     
-        
+        # VER!! RINO Y METAPNEUMO SON UNA COINFECCION. Tendría que sumarse cada uno por separado
         # Piechart: Distribución de virus respiratorios en muestras positivas. Sólo PEDIÁTRICOS.
         st.subheader("Distribución de virus respiratorios en el total de muestras positivas de pacientes pediátricos")
         st.caption("📌 A continuación se muestra un gráfico de torta, en el cual representa la distribución de los virus respiratorios encontrados entre el total de muestras positivas analizadas, tanto por PCR como por Filmarray. La finalidad es proporcionar una visión general de los agentes etiológicos responsables de la mayoría de las infecciones virales respiratorias. En otras palabras, se busca identificar los virus que causan la mayor cantidad de casos positivos en el conjunto de muestras analizadas, lo que puede ser útil para entender la epidemiología y la dinámica de las infecciones respiratorias en la población pediátrica que concurre al hospital.", unsafe_allow_html=False)
@@ -660,7 +660,7 @@ def analisis():
             
             # Creamos el contenedor
             chart_container()
-        
+        # Agregar un gráfico como el anterior como el anterior pero teniendo el cuenta el total estudiado para cada virus y no el total total.
         
         # Coinfectados
         st.subheader("Análisis de Coinfecciones Virales")
