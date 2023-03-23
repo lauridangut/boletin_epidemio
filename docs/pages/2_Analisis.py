@@ -146,7 +146,18 @@ def analisis():
         dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="FAR17") & (dataset["DET_RESULTADO_1"]=="DETECTADO")] = "VSR"
         dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="INFABT") & (dataset["DET_RESULTADO_1"]=="INFLUENZA A")] = "Influenza A"
         dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="INFABT") & (dataset["DET_RESULTADO_1"]=="INFLUENZA B")] = "Influenza B"
+        
+        
+        
+        
+        
+        
         dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="INFABT") & (dataset["DET_RESULTADO_1"]=="INFLUENZA A y B")] = "Influenza A y B"
+        
+        
+        
+        
+        
         dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="MYRVD") & (dataset["DET_RESULTADO_1"]=="RHINOVIRUS")] = "Rhinovirus"
         dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="MYRVD") & (dataset["DET_RESULTADO_1"]=="METAPNEUMOVIRUS")] = "Metapneumovirus"
         dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="MYRVD") & (dataset["DET_RESULTADO_1"]=="METAPNEUMOVIRUS Y RHINOVIRUS")] = "Metapneumovirus y Rhinovirus"
@@ -340,9 +351,9 @@ def analisis():
             chart_container(solo_ped)
             
         # Diccionario de colores para gráficos
-        color_list = ['#636efa', '#EF553B', '#00cc96', '#ab63fa', '#FFA15A', '#19d3f3', '#FF6692', '#B6E880', '#FF97FF', '#FECB52', '#FF6E8D', '#9BBC6B', '#FFD54F', '#A0836C', '#F29B76', '#8390FA', '#9CBAA9', '#D1B993', '#B2B2B2', '#EEDD82', '#CCCCCC']
+        color_list = ['#636efa', '#EF553B', '#00cc96', '#ab63fa', '#FFA15A', '#19d3f3', '#FF6692', '#B6E880', '#FF97FF', '#FECB52', '#FF6E8D', '#9BBC6B', '#FFD54F', '#A0836C', '#F29B76', '#8390FA', '#9CBAA9', '#D1B993', '#B2B2B2', '#EEDD82', '#CCCCCC', '#FF00FF']
     
-        color_dictionary = {"Adenovirus (PCR)": color_list[0], "Enterovirus (PCR)": color_list[1], "Adenovirus (Determinación y/o carga)": color_list[0] ,"Pancoronavirus (PCR)": color_list[2], "SARS-CoV-2 (PCR)": color_list[3], "Coronavirus 299E (Filmarray)": color_list[4], "Coronavirus HKU1 (Filmarray)": color_list[5], "Coronavirus NL63 (Filmarray)": color_list[6], "Coronavirus OC43 (Filmarray)": color_list[7], "Rhinovirus/Enterovirus (Filmarray)": color_list[8], "Parainfluenza 1 (Filmarray)": color_list[9], "Parainfluenza 2 (Filmarray)": color_list[10], "Parainfluenza 3 (Filmarray)": color_list[11], "Parainfluenza 4 (Filmarray)": color_list[12], "Virus Respiratorio Sincicial (Filmarray)": color_list[13], "Influenza A y B (PCR)": color_list[14], "Metapneumovirus y Rhinovirus (PCR)": color_list[19], "Panparainfluenza": color_list[18], "SARS-CoV-2 (Filmarray)": color_list[3], "Rhinovirus": color_list[16], "Virus Respiratorio Sincicial (PCR)": color_list[13]}    
+        color_dictionary = {"Adenovirus (PCR)": color_list[0], "Enterovirus (PCR)": color_list[1], "Adenovirus (Determinación y/o carga)": color_list[0] ,"Pancoronavirus (PCR)": color_list[2], "SARS-CoV-2 (PCR)": color_list[3], "Coronavirus 299E (Filmarray)": color_list[4], "Coronavirus HKU1 (Filmarray)": color_list[5], "Coronavirus NL63 (Filmarray)": color_list[6], "Coronavirus OC43 (Filmarray)": color_list[7], "Rhinovirus/Enterovirus (Filmarray)": color_list[8], "Parainfluenza 1 (Filmarray)": color_list[9], "Parainfluenza 2 (Filmarray)": color_list[10], "Parainfluenza 3 (Filmarray)": color_list[11], "Parainfluenza 4 (Filmarray)": color_list[12], "Virus Respiratorio Sincicial (Filmarray)": color_list[13], "Influenza A y B (PCR)": color_list[14], "Metapneumovirus y Rhinovirus (PCR)": color_list[19], "Panparainfluenza": color_list[18], "SARS-CoV-2 (Filmarray)": color_list[3], "Rhinovirus": color_list[16], "Virus Respiratorio Sincicial (PCR)": color_list[13], "Influenza A y B": color_list[20]}    
         
         # DataFrame Interactivo 2: Cantidad de determinaciones realizadas por estudio
         st.subheader("Total de determinaciones realizadas por estudio")
@@ -372,7 +383,7 @@ def analisis():
                         "VSR_RES":"Virus Respiratorio Sincicial (PCR)"})
         # st.write(determinaciones_por_estudio)    
         
-        from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode
+        from st_aggrid import GridOptionsBuilder, AgGrid
         gb = GridOptionsBuilder.from_dataframe(determinaciones_por_estudio)
         gb.configure_pagination(paginationAutoPageSize=True) #Add pagination
         gb.configure_side_bar() #Add a sidebar
