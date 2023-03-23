@@ -123,7 +123,7 @@ def analisis():
                               else "Adulto" 
                               for x in dataset["EDAD_MESES"]]
         ## Filtrar por tipo de muestras (quedarse sólo con las muestras respiratorias)
-        muestras = ["ANF", "HISOPADO NASOFARINGEO", "LAVADO BRONCOALVEOLAR", "ASPIRADO TRAQUEAL", "BAL", "SECRECION RESPIRATORIA", "MICROBIOLOGIA", "HISOPADO FARINGEO", "Aspirado Traqueal"]
+        muestras = ["ANF", "HISOPADO NASOFARINGEO", "LAVADO BRONCOALVEOLAR", "ASPIRADO TRAQUEAL", "BAL", "SECRECION RESPIRATORIA", "MICROBIOLOGIA", "HISOPADO FARINGEO", "Aspirado Traqueal", "ESPUTO"]
         dataset = dataset[dataset["TIPO_MUESTRA"].isin(muestras)]
         ## Homogeneizar mayúsculas y minúsculas
         dataset['DET_RESULTADO_1'] = dataset['DET_RESULTADO_1'].str.upper()
