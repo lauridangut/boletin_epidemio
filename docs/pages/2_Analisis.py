@@ -485,9 +485,9 @@ def analisis():
         st.plotly_chart(fig, height=1200, width=1600)
         
         # Diccionarios de color:
-        color_list = ['#636efa', '#EF553B', '#00cc96', '#ab63fa', '#FFA15A', '#19d3f3', '#FF6692', '#B6E880', '#FF97FF', '#FECB52', '#FF6E8D', '#9BBC6B', '#FFD54F', '#A0836C', '#F29B76', '#8390FA', '#9CBAA9', '#D1B993', '#B2B2B2', '#EEDD82', '#CCCCCC']
+        color_list = ['#636efa', '#EF553B', '#00cc96', '#ab63fa', '#FFA15A', '#19d3f3', '#FF6692', '#B6E880', '#FF97FF', '#FECB52', '#FF6E8D', '#9BBC6B', '#FFD54F', '#A0836C', '#F29B76', '#8390FA', '#9CBAA9', '#D1B993', '#B2B2B2', '#EEDD82', '#CCCCCC', '#FF00FF']
     
-        color_dict = {"Adenovirus": color_list[0], "Enterovirus": color_list[1], "Pancoronavirus": color_list[2], "SARS-CoV-2": color_list[3], "Coronavirus 299E": color_list[4], "Coronavirus HKU1": color_list[5], "Coronavirus NL63": color_list[6], "Coronavirus OC43": color_list[7], "Rhinovirus/Enterovirus": color_list[8], "Parainfluenza 1": color_list[9], "Parainfluenza 2": color_list[10], "Parainfluenza 3": color_list[11], "Parainfluenza 4": color_list[12], "VSR": color_list[13], "Influenza A": color_list[14], "Influenza B": color_list[15], "Rhinovirus": color_list[16], "Metapneumovirus": color_list[17], "Panparainfluenza": color_list[18], "Metapneumovirus y Rhinovirus": color_list[19], "No detectable": color_list[20]}
+        color_dict = {"Adenovirus": color_list[0], "Enterovirus": color_list[1], "Pancoronavirus": color_list[2], "SARS-CoV-2": color_list[3], "Coronavirus 299E": color_list[4], "Coronavirus HKU1": color_list[5], "Coronavirus NL63": color_list[6], "Coronavirus OC43": color_list[7], "Rhinovirus/Enterovirus": color_list[8], "Parainfluenza 1": color_list[9], "Parainfluenza 2": color_list[10], "Parainfluenza 3": color_list[11], "Parainfluenza 4": color_list[12], "VSR": color_list[13], "Influenza A": color_list[14], "Influenza B": color_list[15], "Rhinovirus": color_list[16], "Metapneumovirus": color_list[17], "Panparainfluenza": color_list[18], "Metapneumovirus y Rhinovirus": color_list[19], "No detectable": color_list[20], "Influenza A y B": color_list[21]}
     
     
         # VER!! RINO Y METAPNEUMO SON UNA COINFECCION. Tendría que sumarse cada uno por separado
