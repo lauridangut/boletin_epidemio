@@ -169,14 +169,31 @@ def analisis():
         ## Ordenar por determinación para facilitar visualización
         dataset = dataset.sort_values(["DET_CODIGO_1", "SEMANA_EPI"])
         
+
+        # Agregar una columna de resultado donde esten los grupos pan todos juntos
+        dataset["RESULTADO_PAN"] = ""
+        dataset["RESULTADO_PAN"].loc[(dataset["RESULTADO"]=="Adenovirus")] = "Adenovirus"
+        dataset["RESULTADO_PAN"].loc[(dataset["RESULTADO"]=="Enterovirus")] = "Enterovirus"
+        dataset["RESULTADO_PAN"].loc[(dataset["RESULTADO"]=="Pancoronavirus")] = "Pancoronavirus"
+        dataset["RESULTADO_PAN"].loc[(dataset["RESULTADO"]=="SARS-CoV-2")] = "Pancoronavirus"
+        dataset["RESULTADO_PAN"].loc[(dataset["RESULTADO"]=="Coronavirus 299E")] = "Pancoronavirus"
+        dataset["RESULTADO_PAN"].loc[(dataset["RESULTADO"]=="Coronavirus HKU1")] = "Pancoronavirus"
+        dataset["RESULTADO_PAN"].loc[(dataset["RESULTADO"]=="Coronavirus NL63")] = "Pancoronavirus"
+        dataset["RESULTADO_PAN"].loc[(dataset["RESULTADO"]=="Coronavirus OC43")] = "Pancoronavirus"
+        dataset["RESULTADO_PAN"].loc[(dataset["RESULTADO"]=="Rhinovirus/Enterovirus")] = "Rhinovirus/Enterovirus"
+        dataset["RESULTADO_PAN"].loc[(dataset["RESULTADO"]=="Parainfluenza 1")] = "Panparainfluenza"
+        dataset["RESULTADO_PAN"].loc[(dataset["RESULTADO"]=="Parainfluenza 2")] = "Panparainfluenza"
+        dataset["RESULTADO_PAN"].loc[(dataset["RESULTADO"]=="Parainfluenza 3")] = "Panparainfluenza"
+        dataset["RESULTADO_PAN"].loc[(dataset["RESULTADO"]=="Parainfluenza 4")] = "Panparainfluenza"
+        dataset["RESULTADO_PAN"].loc[(dataset["RESULTADO"]=="VSR")] = "VSR"
+        dataset["RESULTADO_PAN"].loc[(dataset["RESULTADO"]=="No detectable")] = "No detectable"
+
         # Función para ocultar los datos con asteriscos
         def ocultar_datos(valor):
             if isinstance(valor, str):
                 return '*' * len(valor)
             else:
                 return valor
-        
-        
         
         # Breve descripción del output
         st.caption("📌 Los archivos ingresados fueron procesados para obtener el DataFrame que se muestra a continuación. Éste contiene, a diferencia de los archivos que le dieron origen: una columna con el dato de Semana Epidemiológica, una columna con la edad de los pacientes en meses y otra con la edad en años, y una columna con la edad en categorías. Adicionalmente, se seleccionaron las filas correspondientes a muestras respiratorias, se homogeneizaron mayúsculas y minúsculas, se colocaron los resultados de las determinaciones en una única columna y se eliminaron datos duplicados y filas sin resultado.", unsafe_allow_html=False)
