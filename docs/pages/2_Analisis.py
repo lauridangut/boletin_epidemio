@@ -146,6 +146,7 @@ def analisis():
         dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="FAR17") & (dataset["DET_RESULTADO_1"]=="DETECTADO")] = "VSR"
         dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="INFABT") & (dataset["DET_RESULTADO_1"]=="INFLUENZA A")] = "Influenza A"
         dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="INFABT") & (dataset["DET_RESULTADO_1"]=="INFLUENZA B")] = "Influenza B"
+        dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="INFABT") & (dataset["DET_RESULTADO_1"]=="INFLUENZA A Y B")] = "Influenza A y B"
         dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="MYRVD") & (dataset["DET_RESULTADO_1"]=="RHINOVIRUS")] = "Rhinovirus"
         dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="MYRVD") & (dataset["DET_RESULTADO_1"]=="METAPNEUMOVIRUS")] = "Metapneumovirus"
         dataset["RESULTADO"].loc[(dataset["DET_CODIGO_1"]=="MYRVD") & (dataset["DET_RESULTADO_1"]=="METAPNEUMOVIRUS Y RHINOVIRUS")] = "Metapneumovirus y Rhinovirus"
@@ -420,7 +421,7 @@ def analisis():
         # Tabla: Pediátricos Positivos
         st.subheader("Pacientes Pediátricos con Infección Viral Respiratoria")
         st.caption("📌 En el DataFrame que se muestra a continuación se encuentran los datos de aquellos pacientes que resultaron positivos para al menos uno de los estudios de infección respiratoria. Utilice la barra lateral del mismo para realizar filtrados de las columnas y obtener una visualización óptima.", unsafe_allow_html=False)
-        lista_positivos = ["Adenovirus", "Enterovirus", "Pancoronavirus", "SARS-CoV-2", "Coronavirus 299E", "Coronavirus HKU1", "Coronavirus NL63", "Coronavirus OC43", "Rhinovirus/Enterovirus",  "Parainfluenza 1", "Parainfluenza 2", "Parainfluenza 3", "Parainfluenza 4", "VSR", "Influenza A", "Influenza B", "Rhinovirus", "Metapneumovirus", "Panparainfluenza", "Metapneumovirus y Rhinovirus"]
+        lista_positivos = ["Adenovirus", "Enterovirus", "Pancoronavirus", "SARS-CoV-2", "Coronavirus 299E", "Coronavirus HKU1", "Coronavirus NL63", "Coronavirus OC43", "Rhinovirus/Enterovirus",  "Parainfluenza 1", "Parainfluenza 2", "Parainfluenza 3", "Parainfluenza 4", "VSR", "Influenza A", "Influenza B", "Rhinovirus", "Metapneumovirus", "Panparainfluenza", "Metapneumovirus y Rhinovirus", "Influenza A y B"]
         positivos = solo_ped[solo_ped["RESULTADO"].isin(lista_positivos)]
         positivos['SEMANA_EPI'] = positivos['SEMANA_EPI'].astype(str).str[-2:]
         # st.dataframe(positivos)    
