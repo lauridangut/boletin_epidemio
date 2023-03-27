@@ -175,7 +175,7 @@ def analisis():
                 return '*' * len(valor)
             else:
                 return valor
-    
+        
         
         
         # Breve descripción del output
