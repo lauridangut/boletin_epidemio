@@ -186,6 +186,12 @@ def analisis():
         dataset["RESULTADO_PAN"].loc[(dataset["RESULTADO"]=="Parainfluenza 3")] = "Panparainfluenza"
         dataset["RESULTADO_PAN"].loc[(dataset["RESULTADO"]=="Parainfluenza 4")] = "Panparainfluenza"
         dataset["RESULTADO_PAN"].loc[(dataset["RESULTADO"]=="VSR")] = "VSR"
+        dataset["RESULTADO_PAN"].loc[(dataset["RESULTADO"]=="Influenza A")] = "Influenza A"
+        dataset["RESULTADO_PAN"].loc[(dataset["RESULTADO"]=="Influenza B")] = "Influenza B"
+        dataset["RESULTADO_PAN"].loc[(dataset["RESULTADO"]=="Influenza A y B")] = "Influenza A y B"
+        dataset["RESULTADO_PAN"].loc[(dataset["RESULTADO"]=="Rhinovirus")] = "Rhinovirus"
+        dataset["RESULTADO_PAN"].loc[(dataset["RESULTADO"]=="Metapneumovirus")] = "Metapneumovirus"
+        dataset["RESULTADO_PAN"].loc[(dataset["RESULTADO"]=="Metapneumovirus y Rhinovirus")] = "Metapneumovirus y Rhinovirus"
         dataset["RESULTADO_PAN"].loc[(dataset["RESULTADO"]=="No detectable")] = "No detectable"
 
         # Función para ocultar los datos con asteriscos
