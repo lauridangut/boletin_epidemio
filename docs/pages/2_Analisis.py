@@ -639,12 +639,13 @@ def analisis():
             
             # Configuramos la figura y la mostramos en Streamlit
             fig.update_layout(
-                title="Distribución porcentual de Virus Respiratorios por Categoría de Edad",
+                title={"text":"DISTRIBUCIÓN PORCENTUAL DE VIRUS RESPIRATORIOS POR CATEGORÍA DE EDAD", "font": {"size": 20}},
                 xaxis_title="Edad por Categoría",
                 yaxis_title="Porcentaje",
                 legend_title="Resultado",
-                height=500,
-                width=None
+                legend_tracegroupgap=2,
+                height=600,
+                width=1000,
             )
             
             tabs = st.tabs(['Gráfico📈', 'Dataframe📄', 'Edades por Categorías📄', 'Descargar📁'])
