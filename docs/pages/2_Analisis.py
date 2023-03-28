@@ -387,7 +387,7 @@ def analisis():
         'y':0.95,
         'x':0.5,
         'xanchor': 'center',
-        'yanchor': 'top'})
+        'yanchor': 'top', 'font': {'size': 20}})
         fig.update_layout(yaxis_title="Cantidad de determinaciones")
         fig.update_layout(xaxis_tickangle=-45)
         fig.update_layout(legend=dict(yanchor="top", y=0.99, xanchor="left", x=1.1))
@@ -472,7 +472,16 @@ def analisis():
             name='Total de determinaciones',
             marker_color="rebeccapurple"
         ))
-        fig.update_layout(barmode='group', xaxis_tickangle=90)
+        fig.update_layout(title={
+        'text': "DETERMINACIONES REALIZADAS EN PACIENTES PEDIÁTRICOS",
+        'y':0.95,
+        'x':0.5,
+        'xanchor': 'center',
+        'yanchor': 'top', 'font': {'size': 20}})
+        fig.update_layout(yaxis_title="Cantidad")
+        fig.update_layout(barmode='group', xaxis_tickangle=-45)
+        fig.update_layout(legend=dict(yanchor="top", y=0.99, xanchor="left", x=1.1))
+        fig.update_layout(width=1000, height=600)
         st.plotly_chart(fig, height=1200, width=1600)
         
         # Diccionarios de color:
