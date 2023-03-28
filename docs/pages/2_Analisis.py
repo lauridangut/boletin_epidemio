@@ -747,7 +747,16 @@ def analisis():
         np.fill_diagonal(matriz_coinf.values, matriz_coinf.values.diagonal() - s.sum())
             
         heatmap = px.imshow(matriz_coinf, color_continuous_scale='dense')
-        st.plotly_chart(heatmap, height=1000, width=1000)
+        heatmap.update_layout(
+            title={"text":"REPRESENTACIÓN DE COINFECCIONES EN MAPA DE CALOR", "x": 0.3, "font": {"size": 20}},
+            xaxis_title="Resultado",
+            yaxis_title="Resultado",
+            legend_title="Cantidad",
+            legend_tracegroupgap=2,
+            height=900,
+            width=900,
+        )
+        st.plotly_chart(heatmap)
         
         # Pacientes coinfectados con más de 2 virus (no representados en el heatmap) ESTO DEBE SER UN CONDICIONAL PARA QUE NO APAREZCA UN DATAFRAME VACIO EN LA PAGINA!!!       
         # vector = coinf_cant[coinf_cant["CANT"] > 2]["PAC_ID"].unique()
