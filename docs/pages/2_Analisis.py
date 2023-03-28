@@ -267,22 +267,22 @@ def analisis():
                               name = "Mujeres", 
                               orientation = "h",
                               marker_color='#9d4edd'))
-        fig.update_layout(title = "POBLACIÓN ESTUDIADA POR EDAD Y SEXO",
-                          title_font_size = 20, barmode = 'relative',
-                          bargap = 0.0, bargroupgap = 0,
-                          xaxis = dict(tickvals = [-3000, -2000, -1000, -500,
-                                                  0, 500, 1000, 2000, 3000],
-                                        
-                                      ticktext = ["3000", "2000", "1000", "500", 
-                                                  "0", "500", "1000", "2000", "3000"],
-                                      title = "Total estudiados",
-                                      title_font_size = 20),
-                          yaxis = dict(title= "Edad",
-                                      title_font_size = 20),
-                          font=dict(size=20,
-                                      )
-                          )
-        fig.update_yaxes(type='category')
+        fig.update_layout(title = {
+                    'text': "POBLACIÓN ESTUDIADA POR EDAD Y SEXO",
+                    'x':0.5,
+                    'xanchor': 'center',
+                    'font': {'size': 20}},
+                  barmode='relative',
+                  bargap=0.1, 
+                  bargroupgap=0,  
+                  xaxis_title = "Total estudiados",
+                  yaxis_title = "Edad",
+                  xaxis = {'titlefont': {'size': 20}, 'tickfont': {'size': 13}},
+                  yaxis = {'titlefont': {'size': 20}, 'tickfont': {'size': 13}},
+                  font=dict(size=15),
+                  legend=dict(font=dict(size=20)))
+        fig.update_layout(width=1000, height=600)
+
         st.plotly_chart(fig)
     
         # Hacer un chart container para DataFrame sólo pacientes pediátricos y Características de la Población Pediátrica estudiada    
@@ -320,6 +320,15 @@ def analisis():
     
         def chart_container(data: pd.DataFrame) -> None:
             boxplot = px.box(data, x='SEXO', y='EDAD_AÑOS', color='SEXO', color_discrete_map={'F': '#9d4edd', 'M': '#89c2d9'})
+            # boxplot.update_layout(title="POBLACIÓN ESTUDIADA POR EDAD Y SEXO",
+            #       title_font_size=20,
+            #       barmode='relative',
+            #       bargap=0.0,
+            #       bargroupgap=0,
+            #       xaxis=dict(title="Total estudiados", title_font_size=20),
+            #       yaxis=dict(title="Edad", title_font_size=20),
+            #       font=dict(size=20),
+            #       legend=dict(font=dict(size=20)))
             
             tabs = st.tabs(['Gráfico📈', 'Dataframe📄', 'Descargar📁'])
             
