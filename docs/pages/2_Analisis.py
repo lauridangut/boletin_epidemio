@@ -507,6 +507,12 @@ def analisis():
             fig = px.pie(pos_torta, values='Cantidad de casos', names='Virus', color='Virus', color_discrete_map=color_dict)
             fig.update_traces(textposition='inside')
             fig.update_layout(uniformtext_minsize=12, uniformtext_mode='hide')
+            fig.update_layout(title={
+            'text': "DISTRIBUCIÓN DE VIRUS RESPIRATORIOS EN EL TOTAL DE MUESTRAS POSITIVAS",
+            'x':0.5,
+            'xanchor': 'center',
+            'font': {'size': 20}})
+            fig.update_layout(width=1000, height=600)
             
             tabs = st.tabs(['Gráfico📈', 'Dataframe📄', 'Descargar📁'])
             
