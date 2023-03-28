@@ -343,9 +343,9 @@ def analisis():
     
         color_dictionary = {"Adenovirus (PCR)": color_list[0], "Enterovirus (PCR)": color_list[1], "Adenovirus (Determinación y/o carga)": color_list[0] ,"Pancoronavirus (PCR)": color_list[2], "SARS-CoV-2 (PCR)": color_list[3], "Coronavirus 299E (Filmarray)": color_list[4], "Coronavirus HKU1 (Filmarray)": color_list[5], "Coronavirus NL63 (Filmarray)": color_list[6], "Coronavirus OC43 (Filmarray)": color_list[7], "Rhinovirus/Enterovirus (Filmarray)": color_list[8], "Parainfluenza 1 (Filmarray)": color_list[9], "Parainfluenza 2 (Filmarray)": color_list[10], "Parainfluenza 3 (Filmarray)": color_list[11], "Parainfluenza 4 (Filmarray)": color_list[12], "Virus Respiratorio Sincicial (Filmarray)": color_list[13], "Influenza A y B (PCR)": color_list[14], "Metapneumovirus y Rhinovirus (PCR)": color_list[19], "Panparainfluenza": color_list[18], "SARS-CoV-2 (Filmarray)": color_list[3], "Rhinovirus": color_list[16], "Virus Respiratorio Sincicial (PCR)": color_list[13]}    
         
-        # DataFrame Interactivo 2: Cantidad de determinaciones realizadas por estudio
+        # DataFrame: Cantidad de determinaciones realizadas por estudio
         st.subheader("Total de determinaciones realizadas por estudio")
-        st.caption("📌 El siguiente DataFrame es interactivo, lo que significa que usted puede filtrar las columnas como una planilla de Excel y **seleccionar las filas que le interese visualizar en un gráfico de barras (barplot)**. Los datos utilizados para su construcción contemplan el total de pacientes estudiados, tanto pediátricos como adultos acompañantes. Igualmente que los gráficos anteriores, se puede descargar haciendo click en el ícono 📷 ('Download plot as png'). Además, puede seleccionar las barras que desea ver haciendo click en cada referencia al margen del gráfico.", unsafe_allow_html=False)
+        st.caption("📌 En el siguiente gráfico de barras se muestra la cantidad de determinaciones realizadas para cada virus estudiado. Los datos utilizados para su construcción contemplan el total de pacientes estudiados, tanto pediátricos como adultos acompañantes. Igualmente que los gráficos anteriores, se puede descargar haciendo click en el ícono 📷 ('Download plot as png'). Además, puede seleccionar las barras que desea ver haciendo click en cada referencia al margen del gráfico. Asimismo, puede ampliar la imagen para verla en modo de pantalla completa y posar el mouse sobre cada barra para mayor información. También se deja a disposición la tabla a partir de la cual se construyó la imagen.", unsafe_allow_html=False)
         determinaciones_por_estudio = dataframe.groupby(["DET_CODIGO_1"]).size().to_frame()
         determinaciones_por_estudio.rename(columns={0: "DETERMINACIONES REALIZADAS"}, inplace=True)
         determinaciones_por_estudio.reset_index(inplace=True)
@@ -370,42 +370,25 @@ def analisis():
                         "PCR_C2":"SARS-CoV-2 (Filmarray)",
                         "VSR_RES":"Virus Respiratorio Sincicial (PCR)"})
         # st.write(determinaciones_por_estudio)    
-        
-        from st_aggrid import GridOptionsBuilder, AgGrid
-        gb = GridOptionsBuilder.from_dataframe(determinaciones_por_estudio)
-        gb.configure_pagination(paginationAutoPageSize=True) #Add pagination
-        gb.configure_side_bar() #Add a sidebar
-        gb.configure_selection('multiple', use_checkbox=True, groupSelectsChildren="Group checkbox select children") #Enable multi-row selection
-        gridOptions = gb.build()
-        
+        fig = px.bar(determinaciones_por_estudio, x='VIRUS (MÉTODO)', y='DETERMINACIONES REALIZADAS', color="VIRUS (MÉTODO)", color_discrete_map=color_dictionary, title="DETERMINACIONES REALIZADAS")
+        fig.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')
+        fig.update_layout(title={
+        'text': "DETERMINACIONES REALIZADAS",
+        'y':0.95,
+        'x':0.5,
+        'xanchor': 'center',
+        'yanchor': 'top'})
+        fig.update_layout(yaxis_title="Cantidad de determinaciones")
+        fig.update_layout(xaxis_tickangle=-45)
+        fig.update_layout(legend=dict(yanchor="top", y=0.99, xanchor="left", x=1.1))
+        fig.update_layout(width=1000, height=600)
+        st.plotly_chart(fig)
         
         st.markdown("")
         see_data = st.expander('Haga click aquí para desplegar 📂')
         with see_data:
-            grid_response = AgGrid(
-                determinaciones_por_estudio,
-                gridOptions=gridOptions,
-                data_return_mode='AS_INPUT', 
-                update_mode='MODEL_CHANGED', 
-                fit_columns_on_grid_load=True,
-                theme='alpine', #Add theme color to the table
-                enable_enterprise_modules=True,
-                # height=600, 
-                width='30%',
-                reload_data=True
-            )
-        data1 = grid_response['data']
-        selected1 = grid_response['selected_rows'] 
-        df1 = pd.DataFrame(selected1) #Pass the selected rows to a new dataframe df
+            st.write(determinaciones_por_estudio)
         
-        
-        if selected1:
-            fig = px.bar(df1, x='VIRUS (MÉTODO)', y='DETERMINACIONES REALIZADAS', color="VIRUS (MÉTODO)", color_discrete_map=color_dictionary, title="DETERMINACIONES REALIZADAS")
-            fig.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')
-            st.plotly_chart(fig)
-        # else:
-        #     st.write("Seleccione las filas de la tabla que desee graficar.")
-    
         # Crear un botón de descarga
         csv = determinaciones_por_estudio.to_csv(index=False).encode()
         st.download_button(
@@ -414,8 +397,6 @@ def analisis():
             file_name="total_determinaciones.csv",
             mime="text/csv",
         )
-    
-    
             
         # Tabla: Pediátricos Positivos
         st.subheader("Pacientes Pediátricos con Infección Viral Respiratoria")
@@ -427,6 +408,7 @@ def analisis():
         
         
         # st.dataframe(positivos)
+        from st_aggrid import GridOptionsBuilder, AgGrid
         gb = GridOptionsBuilder.from_dataframe(positivos)
         gb.configure_pagination(paginationAutoPageSize=True) #Add pagination
         gb.configure_side_bar() #Add a sidebar
