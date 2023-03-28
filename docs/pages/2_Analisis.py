@@ -616,13 +616,17 @@ def analisis():
             
             # Filtrar las columnas seleccionadas en el dataframe
             filtered_df = total_cat_pivot[selected_columns]
+                        
+            if not selected_columns:
+            # Si no se han seleccionado columnas, el porcentaje ya ha sido calculado y no es necesario hacerlo de nuevo
+                filtered_df = total_cat_pivot
+            else:
+            # Calcular el total de pacientes por categoría de edad de las columnas restantes
+                total_pacientes_filtered = filtered_df.sum(axis=1)
+            # Calcular el porcentaje de cada virus por categoría de edad de las columnas restantes
+                filtered_df = filtered_df.div(total_pacientes_filtered, axis=0) * 100
+                filtered_df = filtered_df.round(2)
             
-            # Calcular el total de pacientes por categoría de edad
-            total_pacientes_filtered = filtered_df.sum(axis=1)
-            
-            # Calcular el porcentaje de cada virus por categoría de edad
-            filtered_df = filtered_df.div(total_pacientes_filtered, axis=0) * 100
-            filtered_df = filtered_df.round(2)
             
             # Creamos la figura de Plotly
             fig = px.area(filtered_df, x=filtered_df.index, y=filtered_df.columns, color_discrete_sequence=[color_dict[virus] for virus in filtered_df.columns])
