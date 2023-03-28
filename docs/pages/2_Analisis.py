@@ -320,15 +320,16 @@ def analisis():
     
         def chart_container(data: pd.DataFrame) -> None:
             boxplot = px.box(data, x='SEXO', y='EDAD_AÑOS', color='SEXO', color_discrete_map={'F': '#9d4edd', 'M': '#89c2d9'})
-            # boxplot.update_layout(title="POBLACIÓN ESTUDIADA POR EDAD Y SEXO",
-            #       title_font_size=20,
-            #       barmode='relative',
-            #       bargap=0.0,
-            #       bargroupgap=0,
-            #       xaxis=dict(title="Total estudiados", title_font_size=20),
-            #       yaxis=dict(title="Edad", title_font_size=20),
-            #       font=dict(size=20),
-            #       legend=dict(font=dict(size=20)))
+            boxplot.update_layout(title = {
+                        'text': "CARACTERÍSTICAS DE LA POBLACIÓN ESTUDIADA",
+                        'x':0.5,
+                        'xanchor': 'center',
+                        'font': {'size': 20}},
+                  xaxis=dict(title="Sexo", title_font_size=20),
+                  yaxis=dict(title="Edad (años)", title_font_size=20),
+                  font=dict(size=20),
+                  legend=dict(font=dict(size=20)))
+            boxplot.update_layout(width=1000, height=600)
             
             tabs = st.tabs(['Gráfico📈', 'Dataframe📄', 'Descargar📁'])
             
