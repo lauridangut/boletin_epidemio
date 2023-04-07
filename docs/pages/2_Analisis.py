@@ -43,7 +43,7 @@ def colored_header(
     if description:
         st.caption(description)
         
-descripcion = "📌 Utilice el sistema informático hospitalario SIG-HG para extraer la información a analizar"
+descripcion = "📌 Utilice el sistema informático hospitalario Kern Mic para extraer la información a analizar"
         
 colored_header(
     label="Carga de datos y Análisis",
