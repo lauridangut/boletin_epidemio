@@ -595,8 +595,8 @@ def analisis():
         #     st.write("Seleccioná las filas de la tabla anterior presionando la tecla Shift del teclado y, simultáneamente, hacé click en el DataFrame interactivo para visualizar el Porcentaje de Positividad según la Semana Epidemiológica. No olvides filtrar 'No detectable' de la columna Resultado.")
         
         fig = px.bar(temp_df, x="Semana Epidemiológica", y="Porcentaje", color="Resultado", color_discrete_map=color_dict, title="Porcentaje de Positividad por Semana Epidemiológica")
-            fig.update_layout(xaxis=dict(tickmode="linear", tick0=1, dtick=1))
-            st.plotly_chart(fig)
+        fig.update_layout(xaxis=dict(tickmode="linear", tick0=1, dtick=1))
+        st.plotly_chart(fig)
         
         # Positivos por edad. Generar una tabla de positivos en la que las filas sean las categorías de edad y las columnas todos los virus.Filled area plot circulación de virus respiratorios por edad
         st.subheader("Distribución porcentual de los Virus Respiratorios por Categoría de Edad")
