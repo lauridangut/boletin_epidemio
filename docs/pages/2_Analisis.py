@@ -534,7 +534,7 @@ def analisis():
     
         # Tabla para graficar Semana epidemiológica vs porcentaje de positividad de cada virus
         st.subheader("Distribución de Virus Respiratorios en función de la Semana Epidemiológica")
-        st.caption("📌 El siguiente DataFrame proporciona información sobre el recuento de las determinaciones realizadas y los resultados de los pacientes pediátricos estudiados, así como la semana epidemiológica en la que se tomaron las muestras. A partir de esta información, se calcula el porcentaje de positividad para cada uno de los virus. Esta tabla cuenta con una barra lateral con opciones para seleccionar columnas y filtrar datos. Además, seleccionando las filas de interés, se puede generar un gráfico de barras donde el eje horizontal representa la Semana Epidemiológica y el eje vertical el Porcentaje de Positividad. Los datos se presentan de forma interactiva, permitiendo a los usuarios obtener información adicional pasando el cursor sobre la figura y filtrando la imagen haciendo clic en las referencias del margen. Podría ser valioso, por ejemplo, visualizar individualmente algún virus en particular utilizando esta herramienta y evaluar cómo va variando el número de casos semana a semana.", unsafe_allow_html=False)
+        st.caption("📌 El siguiente DataFrame proporciona información sobre el recuento de las determinaciones realizadas y los resultados de los pacientes pediátricos estudiados, así como la semana epidemiológica en la que se tomaron las muestras. A partir de esta información, se calcula el porcentaje de positividad para cada uno de los virus. Esta tabla cuenta con una barra lateral con opciones para seleccionar columnas y filtrar datos. Además, se puede genera un gráfico de barras donde el eje horizontal representa la Semana Epidemiológica y el eje vertical el Porcentaje de Positividad. Los datos se presentan de forma interactiva, permitiendo a los usuarios obtener información adicional pasando el cursor sobre la figura y filtrando la imagen haciendo click en las referencias del margen. Podría ser valioso, por ejemplo, visualizar individualmente algún virus en particular utilizando esta herramienta y evaluar cómo va variando el número de casos semana a semana.", unsafe_allow_html=False)
         adeno_desagrup = solo_ped.copy()
         adeno_desagrup['ESTUDIO'].replace(['ADENOVIRUS POR PCR', 'ADV: DETERMINACIÓN Y/O CARGA'], 'ADENOVIRUS', inplace=True)
         temp_df = adeno_desagrup.groupby(["ESTUDIO", "SEMANA_EPI", "RESULTADO"]).count().reset_index()
@@ -551,7 +551,7 @@ def analisis():
         gb = GridOptionsBuilder.from_dataframe(temp_df)
         gb.configure_pagination(paginationAutoPageSize=True) #Add pagination
         gb.configure_side_bar() #Add a sidebar
-        gb.configure_selection('multiple', use_checkbox=True, groupSelectsChildren="Group checkbox select children") #Enable multi-row selection
+        # gb.configure_selection('multiple', use_checkbox=True, groupSelectsChildren="Group checkbox select children") #Enable multi-row selection
         gridOptions = gb.build()
         
         
@@ -582,18 +582,21 @@ def analisis():
             mime="text/csv",
         )
         
-        data = grid_response['data']
-        selected = grid_response['selected_rows'] 
-        df = pd.DataFrame(selected) #Pass the selected rows to a new dataframe df
+        # data = grid_response['data']
+        # selected = grid_response['selected_rows'] 
+        # df = pd.DataFrame(selected) #Pass the selected rows to a new dataframe df
     
-        if selected:
+        # if selected:
             
-            fig = px.bar(df, x="Semana Epidemiológica", y="Porcentaje", color="Resultado", color_discrete_map=color_dict, title="Porcentaje de Positividad por Semana Epidemiológica")
-            fig.update_layout(xaxis=dict(tickmode="linear", tick0=1, dtick=1))
-            st.plotly_chart(fig)
+        #     fig = px.bar(df, x="Semana Epidemiológica", y="Porcentaje", color="Resultado", color_discrete_map=color_dict, title="Porcentaje de Positividad por Semana Epidemiológica")
+        #     fig.update_layout(xaxis=dict(tickmode="linear", tick0=1, dtick=1))
+        #     st.plotly_chart(fig)
         # else:
         #     st.write("Seleccioná las filas de la tabla anterior presionando la tecla Shift del teclado y, simultáneamente, hacé click en el DataFrame interactivo para visualizar el Porcentaje de Positividad según la Semana Epidemiológica. No olvides filtrar 'No detectable' de la columna Resultado.")
-    
+        
+        fig = px.bar(temp_df, x="Semana Epidemiológica", y="Porcentaje", color="Resultado", color_discrete_map=color_dict, title="Porcentaje de Positividad por Semana Epidemiológica")
+            fig.update_layout(xaxis=dict(tickmode="linear", tick0=1, dtick=1))
+            st.plotly_chart(fig)
         
         # Positivos por edad. Generar una tabla de positivos en la que las filas sean las categorías de edad y las columnas todos los virus.Filled area plot circulación de virus respiratorios por edad
         st.subheader("Distribución porcentual de los Virus Respiratorios por Categoría de Edad")
