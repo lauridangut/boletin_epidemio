@@ -18,7 +18,7 @@ st.set_page_config(
 #Barra lateral
 st.sidebar.markdown('# Unidad de Virología y Epidemiología Molecular')
 st.sidebar.image(
-    'https://raw.githubusercontent.com/lauridangut/boletin_epidemio/main/img/logo_garrahan.png', width=200)
+    'https://raw.githubusercontent.com/lauridangut/boletin_epidemio/demo/img/logo_transparente.png', width=200)
 
 #Principal
 st.header("Servicio de Microbiología - Hospital de Pediatría S.A.M.I.C. 'Prof. Dr. Juan P. Garrahan'")
