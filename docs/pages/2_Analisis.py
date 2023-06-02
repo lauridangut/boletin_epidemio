@@ -503,7 +503,7 @@ def analisis():
         # st.plotly_chart(fig)
         
     
-        def chart_container(data: pd.DataFrame) -> None:
+        def chart_container(data: pos_torta) -> None:
             fig = px.pie(pos_torta, values='Cantidad de casos', names='Virus', color='Virus', color_discrete_map=color_dict)
             fig.update_traces(textposition='inside')
             fig.update_layout(uniformtext_minsize=12, uniformtext_mode='hide')
