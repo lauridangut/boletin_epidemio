@@ -496,7 +496,7 @@ def analisis():
         st.caption("📌 A continuación se muestra un gráfico de torta, en el cual representa la distribución de los virus respiratorios encontrados entre el total de muestras positivas analizadas, tanto por PCR como por Filmarray. La finalidad es proporcionar una visión general de los agentes etiológicos responsables de la mayoría de las infecciones virales respiratorias. En otras palabras, se busca identificar los virus que causan la mayor cantidad de casos positivos en el conjunto de muestras analizadas, lo que puede ser útil para entender la epidemiología y la dinámica de las infecciones respiratorias en la población pediátrica que concurre al hospital.", unsafe_allow_html=False)
         pos_torta = positivos["RESULTADO"].value_counts().to_frame().reset_index()
         pos_torta.rename(columns={"index":"Virus", "RESULTADO": "Cantidad de casos"}, inplace=True)
-        # st.dataframe(pos_torta)
+        st.dataframe(pos_torta)
         fig = px.pie(pos_torta, values='Cantidad de casos', names='Virus', color='Virus', color_discrete_map=color_dict)
         fig.update_traces(textposition='inside')
         fig.update_layout(uniformtext_minsize=12, uniformtext_mode='hide')
