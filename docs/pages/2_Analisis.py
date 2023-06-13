@@ -503,7 +503,7 @@ def analisis():
         # st.plotly_chart(fig)
         
     
-        def chart_container(data: pos_torta) -> None:
+        def chart_container(pos_torta) -> None:
             fig = px.pie(pos_torta, values='Cantidad de casos', names='Virus', color='Virus', color_discrete_map=color_dict)
             fig.update_traces(textposition='inside')
             fig.update_layout(uniformtext_minsize=12, uniformtext_mode='hide')
@@ -520,10 +520,10 @@ def analisis():
                 st.plotly_chart(fig)
             
             with tabs[1]:
-                st.dataframe(data)
+                st.dataframe(pos_torta)
             
             with tabs[2]:
-                st.download_button('Descargar tabla', data=export_csv(data), file_name='data.csv', mime='text/csv')
+                st.download_button('Descargar tabla', data=export_csv(pos_torta), file_name='data.csv', mime='text/csv')
         
         
         if __name__ == '__main__':
