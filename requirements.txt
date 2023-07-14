@@ -1,0 +1,9 @@
+streamlit
+pandas
+datetime
+epiweeks
+python-dateutil
+streamlit-extras
+plotly
+streamlit-aggrid
+numpy
